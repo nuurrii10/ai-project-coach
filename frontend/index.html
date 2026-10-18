@@ -7,10 +7,234 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <a class="brand" href="#dashboard" aria-label="AI Project Coach dashboard">
+                <span class="brand-mark" aria-hidden="true">AI</span>
+                <span>AI Project Coach<span class="brand-caption">SE Project Workspace</span></span>
+            </a>
+            <div class="project-selector">
+                <label for="current-project">Current project</label>
+                <select id="current-project" name="current-project">
+                    <option value="campus-connect">Campus Connect</option>
+                </select>
+                <p>Demo Project</p>
+            </div>
+            <nav aria-label="Main navigation">
+                <ul class="nav-list">
+                    <li><a class="nav-link is-active" href="#dashboard" aria-current="page"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>Dashboard</a></li>
+                    <li><a class="nav-link" href="#backlog"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 5h13M8 12h13M8 19h13M3 5h1M3 12h1M3 19h1"/></svg>Backlog</a></li>
+                    <li><a class="nav-link" href="#sprint-planning"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v16H4zM4 10h16M8 2v6M16 2v6M8 14h2M14 14h2M8 18h2"/></svg>Sprint Planning</a></li>
+                    <li><a class="nav-link" href="#sprint-board"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3zM9 3v18M15 3v18"/></svg>Sprint Board</a></li>
+                    <li><a class="nav-link" href="#ai-coach"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 3h16v15H9l-5 4z"/></svg>AI Coach</a></li>
+                </ul>
+            </nav>
+            <section class="sidebar-footer" aria-labelledby="sidebar-sprint-title">
+                <h2 id="sidebar-sprint-title">SPRINT 4</h2>
+                <p><strong>21 Sep – 4 Oct</strong></p>
+                <progress value="21" max="34" aria-label="Sprint summary: 21 of 34 points complete">62%</progress>
+                <span class="sidebar-caption">8 days remaining · Demo data</span>
+            </section>
+        </aside>
 
-    <h1>AI Project Coach</h1>
-    <p>Application setup successful.</p>
+        <div class="main-layout">
+            <header class="app-header">
+                <div><h1 id="app-page-title" tabindex="-1">Dashboard</h1><p id="app-page-subtitle">Sprint 4 overview · interactive demo</p></div>
+                <div class="header-actions">
+                    <a id="header-sprint-board" class="request-button" href="#sprint-board">View Sprint Board</a>
+                    <a class="request-button header-action" data-page="backlog" href="#story-assistant" hidden>Generate with AI</a>
+                    <button class="request-button request-button-primary header-action" data-page="backlog" id="create-story" type="button" hidden>Create User Story</button>
+                    <span class="status-badge header-action" data-page="story-assistant" hidden>AI-assisted demo draft</span>
+                    <button class="request-button header-action" data-page="sprint-planning" id="end-voting" type="button" hidden>End Voting</button>
+                    <button class="request-button request-button-primary header-action" data-page="sprint-planning" id="add-to-sprint" type="button" hidden>Add to Sprint 5</button>
+                    <a class="request-button request-button-primary header-action" data-page="sprint-board" href="#backlog" hidden>Add Story</a>
+                    <button class="request-button header-action" data-page="ai-coach" id="export-summary" type="button" hidden>Export Summary</button>
+                    <button class="request-button request-button-primary header-action" data-page="ai-coach" id="start-retro" type="button" hidden>Start Team Retrospective</button>
+                </div>
+            </header>
 
+            <main id="main-content" tabindex="-1">
+                <p id="demo-feedback" class="request-message" role="status" aria-atomic="true"></p>
+                <section id="dashboard" class="page" aria-labelledby="dashboard-title">
+                    <div class="page-heading dashboard-heading">
+                        <h2 id="dashboard-title" tabindex="-1">Dashboard</h2><p>Sprint 4 overview · interactive demo</p>
+                    </div>
+
+                    <div class="overview-grid">
+                        <article class="overview-card" aria-labelledby="progress-label">
+                            <h3 id="progress-label">Sprint progress</h3>
+                            <p class="card-value">62%</p>
+                            <p class="card-description">8 of 13 stories complete</p>
+                        </article>
+                        <article class="overview-card" aria-labelledby="points-label">
+                            <h3 id="points-label">Completed story points</h3>
+                            <p class="card-value">21 / 34</p>
+                            <p class="card-description">13 points remaining</p>
+                        </article>
+                        <article class="overview-card" aria-labelledby="stories-label">
+                            <h3 id="stories-label">Open stories</h3>
+                            <p class="card-value">5</p>
+                            <p class="card-description">2 currently blocked</p>
+                        </article>
+                        <article class="overview-card" aria-labelledby="velocity-label">
+                            <h3 id="velocity-label">Team velocity</h3>
+                            <p class="card-value">31 pts</p>
+                            <p class="card-description">3-sprint average: 29 pts</p>
+                        </article>
+                    </div>
+
+                    <div class="dashboard-columns">
+                        <div class="dashboard-primary">
+                            <article class="panel sprint-panel" aria-labelledby="current-sprint-title">
+                                <h3 id="current-sprint-title">Current sprint progress</h3>
+                                <p class="panel-subtitle">Sprint 4 · 21 Sep – 4 Oct</p>
+                                <p class="sprint-total">21</p>
+                                <div class="progress-label"><span>story points completed</span><span>Target: 34 points</span></div>
+                                <progress value="21" max="34" aria-label="Current sprint progress: 21 of 34 story points complete">62%</progress>
+                                <div class="progress-legend"><span>■ Completed: 21</span><span>□ Remaining: 13</span><span>8 days left</span></div>
+                            </article>
+
+                            <article class="panel attention-panel" aria-labelledby="attention-title">
+                                <h3 id="attention-title">Stories needing attention</h3>
+                                <p class="panel-subtitle">Open work ordered by urgency</p>
+                                <ul class="story-list">
+                                    <li><span>US-024</span><span>Reset forgotten password</span><span class="story-points">3 pts</span><span class="status-badge">In Progress</span></li>
+                                    <li><span>US-023</span><span>Review public study group access request</span><span class="story-points">5 pts</span><span class="status-badge">Review / Test</span></li>
+                                    <li><span>US-027</span><span>Show schedule conflict warning</span><span class="story-points">2 pts</span><span class="status-badge">To Do</span></li>
+                                </ul>
+                            </article>
+                        </div>
+
+                        <div class="dashboard-secondary">
+                            <article class="panel coach-panel" aria-labelledby="recommendation-title">
+                                <h3 id="recommendation-title">AI Coach recommendation</h3>
+                                <p class="panel-subtitle">Based on Sprint 4 activity</p>
+                                <span class="risk-badge">Delivery risk</span>
+                                <p class="recommendation-copy">Review the 2 blocked stories before taking on new work.</p>
+                                <p class="panel-copy">Both sample blockers depend on the authentication API. Resolving the dependency could release 8 story points and lower delivery risk.</p>
+                                <div class="panel-action"><a class="request-button" href="#ai-coach">Open AI Coach</a></div>
+                            </article>
+
+                            <article class="panel activity-panel" aria-labelledby="activity-title">
+                                <h3 id="activity-title">Team activity</h3>
+                                <ul class="activity-list">
+                                    <li>Stephan moved US-023 to Review / Test</li>
+                                    <li>Aladam added 3 acceptance criteria to US-024</li>
+                                    <li>Markus completed US-015 · 3 points</li>
+                                </ul>
+                            </article>
+                        </div>
+                    </div>
+
+                    <article class="panel study-groups-panel" aria-labelledby="study-groups-title">
+                        <div><h3 id="study-groups-title">Study groups</h3><p class="panel-copy">Manage membership requests for the study groups you own.</p></div>
+                        <a class="request-button" href="#join-requests">Manage join requests</a>
+                    </article>
+                </section>
+
+                <section id="backlog" class="page" aria-labelledby="backlog-title" hidden>
+                    <div class="page-heading"><h2 id="backlog-title">Backlog &amp; User Story Management</h2><p>Create, refine, prioritise, and prepare stories for sprint planning</p></div>
+                    <div class="toolbar">
+                        <label class="search-field"><span class="sr-only">Search user stories</span><input id="backlog-search" type="search" placeholder="Search user stories…"></label>
+                        <label><span class="sr-only">Filter backlog priority</span><select id="backlog-priority"><option value="">Priority: All</option><option>High</option><option>Medium</option><option>Low</option></select></label>
+                        <label><span class="sr-only">Filter backlog status</span><select id="backlog-status"><option value="">Status: All</option><option>Ready</option><option>Draft</option><option>Refine</option><option>In Sprint</option></select></label>
+                        <p id="backlog-count" class="toolbar-summary" role="status"></p>
+                    </div>
+                    <div class="table-panel"><table><caption class="sr-only">Project backlog with mock user stories</caption><thead><tr><th scope="col">ID</th><th scope="col">User story</th><th scope="col">Priority</th><th scope="col">Points</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="backlog-rows"></tbody></table><p id="backlog-empty" class="empty-notice" hidden>No stories match your filters. Try another search or choose All.</p><p class="table-footer">Mock preview · Decisions and new stories reset on refresh.</p></div>
+                </section>
+
+                <section id="story-assistant" class="page" data-nav-parent="backlog" aria-labelledby="assistant-title" hidden>
+                    <div class="page-heading"><h2 id="assistant-title">AI User Story Assistant</h2><p>Turn a natural-language requirement into a structured backlog item</p></div>
+                    <div class="assistant-grid">
+                        <div class="stack">
+                            <article class="panel"><h3>1. Describe the requirement</h3><p class="panel-subtitle">Write what the user needs in plain language. Include relevant constraints or business rules.</p>
+                                <label class="sr-only" for="story-requirement">Requirement</label><textarea id="story-requirement" rows="7" maxlength="1000">Students should be able to request access to a public study group. The owner needs to approve the request before the student can see private posts.</textarea>
+                                <p class="field-help">Be specific about the actor and desired outcome. <span id="requirement-count"></span></p>
+                                <button id="generate-story" class="request-button request-button-primary full-width" type="button">Generate User Story</button><p class="field-help">Demo only: shows a sample draft; no AI service is connected.</p>
+                            </article>
+                            <article class="panel grow"><h3>Project context</h3><p class="panel-subtitle">Context helps the assistant create a more relevant draft.</p><label class="field-label" for="product-area">Product area</label><select id="product-area"><option>Study Groups</option></select><label class="field-label" for="primary-user">Primary user</label><select id="primary-user"><option>University student</option></select></article>
+                        </div>
+                        <article class="panel"><h3>2. Review AI-generated story</h3><p class="panel-subtitle">Check the wording and acceptance criteria before adding this item to the backlog.</p>
+                            <div class="draft-story"><div class="panel-heading"><h4>Suggested user story</h4><span class="status-badge">Priority: Medium</span></div><label class="sr-only" for="suggested-story">Suggested story text</label><textarea id="suggested-story" rows="5">As a university student,
+I want to request access to a public study group,
+so that I can participate after the group owner approves me.</textarea></div>
+                            <div class="panel-heading"><h4>Suggested acceptance criteria</h4><span class="muted">4 criteria</span></div>
+                            <ul class="criteria-list"><li>Given I am viewing a public study group, when I select Join, then my request is sent to the group owner.</li><li>The group owner receives a notification containing my name and study interests.</li><li>I see a Pending status until the owner approves or declines the request.</li><li>I cannot submit a second request while one is pending.</li></ul>
+                            <div class="panel-action action-row"><span class="field-help">Review the sample output for accuracy before saving.</span><button id="add-draft" class="request-button request-button-primary" type="button">Add to Backlog</button></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section id="sprint-planning" class="page" aria-labelledby="planning-title" hidden>
+                    <div class="page-heading"><h2 id="planning-title">Sprint Planning &amp; Planning Poker</h2><p>Backlog refinement &amp; estimation session · 6 demo participants</p></div>
+                    <article class="panel selected-story"><h3>Selected user story</h3><div class="selected-story-grid"><div><p><strong>US-026</strong> <span class="status-badge">Medium</span> <span class="status-badge">Study Groups</span></p><h4>Request access to a public study group</h4><p>As a university student, I want to request access to a public study group, so that I can participate after the group owner approves me.</p></div><div><h4>Acceptance criteria (4)</h4><ul class="criteria-list compact"><li>Join request is sent to the group owner</li><li>Student sees a Pending status</li><li>Duplicate requests are prevented</li><li>Private posts stay hidden until approval</li></ul></div></div></article>
+                    <div class="planning-grid">
+                        <article class="panel"><h3>Team estimates</h3><p id="voting-description" class="panel-subtitle">Votes are revealed. Discuss the difference before agreeing a final estimate.</p><div id="team-estimates" class="estimate-grid"></div>
+                            <fieldset class="vote-fieldset"><legend>Your estimate</legend><p id="selected-estimate" role="status">Selected: 5 points</p><div id="vote-options" class="vote-options" role="group" aria-label="Choose your estimate"></div></fieldset>
+                        </article>
+                        <article class="panel"><h3>AI-generated estimate</h3><p class="panel-subtitle">Comparable stories and acceptance criteria were considered. Sample analysis only.</p><div class="estimate-suggestion"><h4>Suggested estimate</h4><strong>5</strong><span>story points</span></div><h4>Why 5 points?</h4><p class="panel-copy">The story includes a request workflow, a new Pending state, one notification, and duplicate-request validation. Similar stories averaged 4.7 points.</p><div class="panel-action"><p class="field-help">Confidence: Medium · Team range: 3–8</p><button id="use-estimate" class="request-button full-width" type="button">Use 5 as Final Estimate</button></div></article>
+                    </div>
+                </section>
+
+                <section id="sprint-board" class="page" aria-labelledby="board-title" hidden>
+                    <div class="page-heading"><h2 id="board-title">Sprint Board</h2><p>Sprint 4 · 21 of 34 story points completed · 8 days remaining</p></div>
+                    <div class="toolbar"><label><span class="sr-only">Sprint</span><select><option>Sprint 4</option></select></label><label><span class="sr-only">Filter assignee</span><select id="board-assignee"><option value="">Assignee: All</option><option value="SG">Serhat Goektas</option><option value="AM">Aladam Mishref</option><option value="SL">Stephan Lottes</option><option value="EMM">Enrique Morales Mesino</option><option value="NA">Nuri Ali</option><option value="MR">Markus Rizkalla</option></select></label><label><span class="sr-only">Filter board priority</span><select id="board-priority"><option value="">Priority: All</option><option>High</option><option>Medium</option><option>Low</option></select></label><p id="board-count" class="toolbar-summary" role="status"></p></div>
+                    <div id="board-columns" class="board-grid"></div>
+                </section>
+
+                <section id="ai-coach" class="page" aria-labelledby="coach-title" hidden>
+                    <div class="page-heading"><h2 id="coach-title">AI Retrospective / Project Coach</h2><p>Sprint 4 completed · Sample AI analysis from board history and team activity</p></div>
+                    <div class="overview-grid"><article class="overview-card"><h3>Planned story points</h3><p class="card-value">34</p><p class="card-description">13 total stories</p></article><article class="overview-card"><h3>Completed story points</h3><p class="card-value">21</p><p class="card-description">8 completed stories</p></article><article class="overview-card"><h3>Carry-over stories</h3><p class="card-value">5</p><p class="card-description">13 points · 5 carry-over stories</p></article><article class="overview-card"><h3>Average cycle time</h3><p class="card-value">4.2 days</p><p class="card-description">0.8 days slower than Sprint 3</p></article></div>
+                    <div class="retro-grid"><div class="stack"><article class="panel"><h3>Sprint outcome</h3><p class="panel-subtitle">Planned versus completed points</p><div class="progress-label"><span>Planned</span><strong>34 pts · 13 stories</strong></div><progress value="34" max="34" aria-label="Planned: 34 story points">34</progress><div class="progress-label"><span>Completed</span><strong>21 pts · 8 stories</strong></div><progress value="21" max="34" aria-label="Completed: 21 of 34 story points">21</progress></article><article class="panel grow"><h3>Delivery signals</h3><dl class="signal-list"><div><dt>Stories completed</dt><dd>8 / 13</dd></div><div><dt>Blocked time</dt><dd>6.5 days</dd></div><div><dt>Reopened stories</dt><dd>2</dd></div><div><dt>Scope added mid-sprint</dt><dd>5 pts</dd></div></dl></article></div>
+                        <article class="panel"><h3>AI Coach analysis</h3><p class="panel-subtitle">AI identifies possible problems and suggests improvements. The team discusses and decides what to do. Demo analysis only.</p><div class="analysis-grid"><div><div class="panel-heading"><h4>Possible problems</h4><span class="risk-badge">AI detected 3</span></div><div class="analysis-card"><h5>! Authentication work is blocking delivery</h5><span class="muted">High impact</span><p>Two stories waited more than three days for the same API dependency.</p></div><div class="analysis-card"><h5>! Review work is clustering late</h5><span class="muted">Medium impact</span><p>Six of eight completed stories entered review in the final three sprint days.</p></div><div class="analysis-card"><h5>! Mid-sprint scope increased delivery pressure</h5><span class="muted">Medium impact</span><p>5 story points were added after the sprint started, increasing the committed workload.</p></div></div>
+                            <div><h4>Suggested improvements for Sprint 5</h4><span class="status-badge">Next sprint</span><ol class="improvement-list"><li><h5>Schedule an authentication dependency check</h5><p>Confirm API ownership and test data before Sprint 5 begins.</p></li><li><h5>Set a daily review handoff</h5><p>Reserve 30 minutes each afternoon for code review and QA assignment.</p></li><li><h5>Protect the sprint scope</h5><p>Avoid adding new work during an active sprint unless equivalent scope is removed or the change is explicitly agreed by the team.</p></li></ol><button id="create-actions" class="request-button request-button-primary full-width" type="button">Create Sprint 5 Action Items</button><button id="ask-coach" class="request-button full-width spaced-button" type="button">Ask AI Coach a Follow-up</button><div id="coach-followup" hidden><label class="field-label" for="coach-question">Team follow-up question</label><textarea id="coach-question" rows="3" placeholder="What should the team discuss next?"></textarea><p class="field-help">Use this question during your team discussion. Live AI answers are not connected.</p></div></div></div>
+                            <div id="team-retrospective" class="panel-action" hidden><label class="field-label" for="retro-notes">Team retrospective notes</label><textarea id="retro-notes" rows="4" placeholder="What went well? What should change next sprint?"></textarea><p class="field-help">Discussion notes stay in this preview until refresh.</p></div>
+                        </article>
+                    </div>
+                </section>
+
+                <section id="join-requests" class="page join-requests-page" data-nav-parent="dashboard" aria-labelledby="join-requests-title" hidden>
+                    <a class="back-link" href="#dashboard">← Back to Dashboard</a>
+                    <div class="page-heading">
+                        <p class="eyebrow">Study groups · Owner workspace</p>
+                        <h2 id="join-requests-title" tabindex="-1">Join Requests</h2>
+                        <p>Review who wants to join the study groups you own.</p>
+                    </div>
+                    <div class="requests-demo">
+                        <p><strong>Demo data.</strong> Decisions apply to this preview only and reset when you refresh.</p>
+                        <label><input id="fail-next-request" type="checkbox"> Simulate a failure on the next approval or rejection</label>
+                    </div>
+                    <p id="request-success" class="request-message" role="status" aria-atomic="true"></p>
+                    <p id="request-error" class="request-message request-message-error" role="alert" aria-atomic="true"></p>
+                    <div class="requests-heading">
+                        <h3>Study group requests</h3>
+                        <p id="request-summary" role="status" aria-atomic="true">Loading requests…</p>
+                    </div>
+                    <p id="requests-empty" class="requests-empty" hidden>No pending requests. All study group requests have been reviewed.</p>
+                    <ul id="request-list" class="request-list" aria-label="Study group join requests" aria-busy="true"></ul>
+                    <button id="retry-requests" class="request-button" type="button" hidden>Retry loading requests</button>
+                    <noscript><p>Enable JavaScript to review and approve study group join requests.</p></noscript>
+                </section>
+
+                <template id="request-card-template">
+                    <li class="request-card">
+                        <div class="request-details">
+                            <h4 class="requester-name"></h4>
+                            <p>Study group: <span class="request-group"></span></p>
+                            <p>Status: <span class="request-status" tabindex="-1"></span></p>
+                        </div>
+                        <div class="request-actions">
+                            <button class="request-button request-button-primary" type="button" data-decision="approved">Approve</button>
+                            <button class="request-button" type="button" data-decision="rejected">Reject</button>
+                        </div>
+                    </li>
+                </template>
+                <dialog id="story-dialog" aria-labelledby="story-dialog-title"><form id="story-form"><h2 id="story-dialog-title">Create User Story</h2><p class="field-help">A demo story will be added to the backlog until refresh.</p><label class="field-label" for="new-story-title">User story</label><textarea id="new-story-title" rows="4" maxlength="500" required></textarea><div class="form-grid"><div><label class="field-label" for="new-story-priority">Priority</label><select id="new-story-priority"><option>Low</option><option selected>Medium</option><option>High</option></select></div><div><label class="field-label" for="new-story-points">Story points</label><input id="new-story-points" type="number" min="0" max="100" value="3" required></div></div><div class="panel-action action-row"><button id="cancel-story" class="request-button" type="button">Cancel</button><button class="request-button request-button-primary" type="submit">Create Story</button></div></form></dialog>
+            </main>
+            <footer class="app-footer">Clickable prototype · Mock data and simulated AI <span>University project · UI prototype</span></footer>
+        </div>
+    </div>
     <script src="js/app.js"></script>
 </body>
 </html>
