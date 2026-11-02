@@ -3,8 +3,8 @@ package at.fhtw.aiprojectcoach.service;
 import at.fhtw.aiprojectcoach.dto.CreateUserStoryRequest;
 import at.fhtw.aiprojectcoach.dto.UserStoryResponse;
 import at.fhtw.aiprojectcoach.exception.ResourceNotFoundException;
-import at.fhtw.aiprojectcoach.model.Project;
-import at.fhtw.aiprojectcoach.model.UserStory;
+import at.fhtw.aiprojectcoach.entity.Project;
+import at.fhtw.aiprojectcoach.entity.UserStory;
 import at.fhtw.aiprojectcoach.repository.ProjectRepository;
 import at.fhtw.aiprojectcoach.repository.UserStoryRepository;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,11 @@ public class UserStoryService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project with id " + projectId + " not found"));
 
-        UserStory userStory = new UserStory(request.title(), request.priority(), request.storyPoints(), project);
+        UserStory userStory = new UserStory(
+                request.title(), request.description(), request.acceptanceCriteria(), project);
+        userStory.setPriority(request.priority());
+        userStory.setStoryPoints(request.storyPoints());
+
         UserStory savedUserStory = userStoryRepository.save(userStory);
         return UserStoryResponse.from(savedUserStory);
     }
@@ -39,7 +43,8 @@ public class UserStoryService {
         }
 
         List<UserStoryResponse> result = new ArrayList<>();
-        for (UserStory userStory : userStoryRepository.findByProjectId(projectId)) {
+        // newest stories first
+        for (UserStory userStory : userStoryRepository.findAllByProject_IdOrderByCreatedAtDesc(projectId)) {
             result.add(UserStoryResponse.from(userStory));
         }
         return result;

@@ -2,9 +2,8 @@ package at.fhtw.aiprojectcoach.controller;
 
 import at.fhtw.aiprojectcoach.dto.CreateUserStoryRequest;
 import at.fhtw.aiprojectcoach.dto.UserStoryResponse;
+import at.fhtw.aiprojectcoach.entity.Priority;
 import at.fhtw.aiprojectcoach.exception.ResourceNotFoundException;
-import at.fhtw.aiprojectcoach.model.Priority;
-import at.fhtw.aiprojectcoach.model.StoryStatus;
 import at.fhtw.aiprojectcoach.service.UserStoryService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,9 +29,12 @@ class UserStoryControllerTest {
     private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new UserStoryController(userStoryService)).build();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private final CreateUserStoryRequest validRequest = new CreateUserStoryRequest(
+            "Join a study group", "As a student, I want to join a study group.", null, Priority.MEDIUM, 5);
+
     private final UserStoryResponse joinGroupStory = new UserStoryResponse(
-            10L, 1L, "As a student, I want to join a study group.",
-            Priority.MEDIUM, 5, StoryStatus.DRAFT, LocalDateTime.now());
+            10L, 1L, "Join a study group", "As a student, I want to join a study group.", null,
+            Priority.MEDIUM, 5, "BACKLOG", LocalDateTime.now());
 
     @Test
     void createUserStoryReturnsCreatedStory() throws Exception {
@@ -40,19 +42,28 @@ class UserStoryControllerTest {
 
         mockMvc.perform(post("/api/projects/1/user-stories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CreateUserStoryRequest(
-                                "As a student, I want to join a study group.", Priority.MEDIUM, 5))))
+                        .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(10))
                 .andExpect(jsonPath("$.projectId").value(1))
-                .andExpect(jsonPath("$.status").value("DRAFT"));
+                .andExpect(jsonPath("$.status").value("BACKLOG"));
     }
 
     @Test
     void createUserStoryRejectsBlankTitle() throws Exception {
         mockMvc.perform(post("/api/projects/1/user-stories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CreateUserStoryRequest(" ", Priority.LOW, 3))))
+                        .content(objectMapper.writeValueAsString(
+                                new CreateUserStoryRequest(" ", null, null, Priority.LOW, 3))))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createUserStoryRejectsTooLongTitle() throws Exception {
+        mockMvc.perform(post("/api/projects/1/user-stories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new CreateUserStoryRequest("a".repeat(201), null, null, Priority.LOW, 3))))
                 .andExpect(status().isBadRequest());
     }
 
@@ -63,8 +74,7 @@ class UserStoryControllerTest {
 
         mockMvc.perform(post("/api/projects/99/user-stories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CreateUserStoryRequest(
-                                "As a student, I want to join a study group.", Priority.MEDIUM, 5))))
+                        .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isNotFound());
     }
 
@@ -75,7 +85,7 @@ class UserStoryControllerTest {
         mockMvc.perform(get("/api/projects/1/user-stories"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].title").value("As a student, I want to join a study group."));
+                .andExpect(jsonPath("$[0].title").value("Join a study group"));
     }
 
     @Test

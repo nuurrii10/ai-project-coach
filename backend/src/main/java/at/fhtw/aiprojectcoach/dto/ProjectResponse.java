@@ -1,6 +1,6 @@
 package at.fhtw.aiprojectcoach.dto;
 
-import at.fhtw.aiprojectcoach.model.Project;
+import at.fhtw.aiprojectcoach.entity.Project;
 
 import java.time.LocalDateTime;
 

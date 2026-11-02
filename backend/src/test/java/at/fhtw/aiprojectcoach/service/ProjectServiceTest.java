@@ -3,7 +3,7 @@ package at.fhtw.aiprojectcoach.service;
 import at.fhtw.aiprojectcoach.dto.CreateProjectRequest;
 import at.fhtw.aiprojectcoach.dto.ProjectResponse;
 import at.fhtw.aiprojectcoach.exception.ResourceNotFoundException;
-import at.fhtw.aiprojectcoach.model.Project;
+import at.fhtw.aiprojectcoach.entity.Project;
 import at.fhtw.aiprojectcoach.repository.ProjectRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

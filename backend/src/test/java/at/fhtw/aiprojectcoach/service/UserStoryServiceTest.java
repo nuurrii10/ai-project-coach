@@ -2,11 +2,10 @@ package at.fhtw.aiprojectcoach.service;
 
 import at.fhtw.aiprojectcoach.dto.CreateUserStoryRequest;
 import at.fhtw.aiprojectcoach.dto.UserStoryResponse;
+import at.fhtw.aiprojectcoach.entity.Priority;
+import at.fhtw.aiprojectcoach.entity.Project;
+import at.fhtw.aiprojectcoach.entity.UserStory;
 import at.fhtw.aiprojectcoach.exception.ResourceNotFoundException;
-import at.fhtw.aiprojectcoach.model.Priority;
-import at.fhtw.aiprojectcoach.model.Project;
-import at.fhtw.aiprojectcoach.model.StoryStatus;
-import at.fhtw.aiprojectcoach.model.UserStory;
 import at.fhtw.aiprojectcoach.repository.ProjectRepository;
 import at.fhtw.aiprojectcoach.repository.UserStoryRepository;
 import org.junit.jupiter.api.Test;
@@ -29,16 +28,23 @@ class UserStoryServiceTest {
     private final Project project = new Project("Campus Connect", null);
 
     @Test
-    void createUserStorySavesStoryAsDraft() {
+    void createUserStorySavesAllFields() {
         when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
         when(userStoryRepository.save(any(UserStory.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        UserStoryResponse response = userStoryService.createUserStory(1L,
-                new CreateUserStoryRequest("As a student, I want to join a study group.", Priority.HIGH, 3));
+        UserStoryResponse response = userStoryService.createUserStory(1L, new CreateUserStoryRequest(
+                "Join a study group",
+                "As a student, I want to join a study group.",
+                "Join request is sent to the owner",
+                Priority.HIGH,
+                3));
 
-        assertEquals("As a student, I want to join a study group.", response.title());
+        assertEquals("Join a study group", response.title());
+        assertEquals("As a student, I want to join a study group.", response.description());
+        assertEquals("Join request is sent to the owner", response.acceptanceCriteria());
         assertEquals(Priority.HIGH, response.priority());
-        assertEquals(StoryStatus.DRAFT, response.status());
+        assertEquals(3, response.storyPoints());
+        assertEquals("BACKLOG", response.status());
     }
 
     @Test
@@ -46,15 +52,15 @@ class UserStoryServiceTest {
         when(projectRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> userStoryService.createUserStory(99L,
-                new CreateUserStoryRequest("As a student, I want to join a study group.", Priority.LOW, 1)));
+                new CreateUserStoryRequest("Join a study group", null, null, Priority.LOW, 1)));
     }
 
     @Test
     void getUserStoriesForProjectReturnsStoriesOfThatProject() {
         when(projectRepository.existsById(1L)).thenReturn(true);
-        when(userStoryRepository.findByProjectId(1L)).thenReturn(List.of(
-                new UserStory("Story A", Priority.LOW, 1, project),
-                new UserStory("Story B", Priority.HIGH, 8, project)));
+        when(userStoryRepository.findAllByProject_IdOrderByCreatedAtDesc(1L)).thenReturn(List.of(
+                new UserStory("Story A", null, null, project),
+                new UserStory("Story B", null, null, project)));
 
         List<UserStoryResponse> stories = userStoryService.getUserStoriesForProject(1L);
 

@@ -1,4 +1,4 @@
-package at.fhtw.aiprojectcoach.model;
+package at.fhtw.aiprojectcoach.entity;
 
 public enum Priority {
     LOW,
