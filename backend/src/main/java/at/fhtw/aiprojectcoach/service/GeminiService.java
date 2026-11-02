@@ -26,37 +26,55 @@ public class GeminiService {
                 .build();
     }
 
-    public String generateResponse(String prompt) {
+   public String generateResponse(String prompt) {
 
-        Map<String, Object> requestBody = Map.of(
-                "contents", List.of(
-                        Map.of("parts", List.of(
-                                Map.of("text", prompt)
-                        ))
-                )
+    Map<String, Object> requestBody = Map.of(
+            "contents", List.of(
+                    Map.of("parts", List.of(
+                            Map.of("text", prompt)
+                    ))
+            )
+    );
+
+    GeminiResponse response = restClient.post()
+            .uri("/models/{model}:generateContent", model)
+            .body(requestBody)
+            .retrieve()
+            .body(GeminiResponse.class);
+
+    if (response == null
+            || response.candidates() == null
+            || response.candidates().isEmpty()) {
+        throw new IllegalStateException(
+                "Gemini returned no response"
         );
-
-        GeminiResponse response = restClient.post()
-                .uri("/models/{model}:generateContent", model)
-                .body(requestBody)
-                .retrieve()
-                .body(GeminiResponse.class);
-
-        if (response == null
-                || response.candidates() == null
-                || response.candidates().isEmpty()
-                || response.candidates().get(0).content() == null
-                || response.candidates().get(0).content().parts() == null
-                || response.candidates().get(0).content().parts().isEmpty()) {
-            throw new IllegalStateException("Gemini returned no text response");
-        }
-
-        return response.candidates().get(0)
-                .content().parts().stream()
-                .map(Part::text)
-                .filter(text -> text != null)
-                .reduce("", String::concat);
     }
+
+    Candidate candidate = response.candidates().get(0);
+
+    if (candidate == null || candidate.content() == null
+            || candidate.content().parts() == null) {
+        throw new IllegalStateException(
+                "Gemini returned no valid content"
+        );
+    }
+
+    StringBuilder result = new StringBuilder();
+
+    for (Part part : candidate.content().parts()) {
+        if (part != null && part.text() != null) {
+            result.append(part.text());
+        }
+    }
+
+    if (result.length() == 0) {
+        throw new IllegalStateException(
+                "Gemini returned no text response"
+        );
+    }
+
+    return result.toString();
+   }
 
     public record GeminiResponse(List<Candidate> candidates) {}
     public record Candidate(Content content) {}
