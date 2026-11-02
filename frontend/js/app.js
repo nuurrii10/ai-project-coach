@@ -1,4 +1,4 @@
-const navigationLinks = document.querySelectorAll(".nav-link");
+const navigationLinks = document.querySelectorAll(".nav-link, .project-overview-link");
 const pages = document.querySelectorAll(".page");
 
 function showPage(pageId, moveFocus = false) {
@@ -163,17 +163,16 @@ async function loadJoinRequests() {
 retryRequests.addEventListener("click", loadJoinRequests);
 loadJoinRequests();
 
-// The remaining mockup screens use local preview data only, separate from US-025.
-const previewStories = [
-    { id: 'US-031', title: 'As a student, I want to save a study group', priority: 'High', points: 5, status: 'Ready' },
-    { id: 'US-030', title: 'As a moderator, I want to report inappropriate posts', priority: 'High', points: 8, status: 'Draft' },
-    { id: 'US-029', title: 'As a student, I want to edit my profile interests', priority: 'Medium', points: 3, status: 'Ready' },
-    { id: 'US-028', title: 'As a tutor, I want to publish available office hours', priority: 'Medium', points: 5, status: 'Refine' },
-    { id: 'US-027', title: 'As a student, I want a schedule conflict warning', priority: 'High', points: 2, status: 'In Sprint' },
-    { id: 'US-026', title: 'As a student, I want to request access to a public study group', priority: 'Medium', points: 5, status: 'Ready' },
-    { id: 'US-025', title: 'As a group owner, I want to approve join requests', priority: 'Low', points: 2, status: 'In Sprint' },
-    { id: 'US-024', title: 'As a user, I want to reset a forgotten password', priority: 'High', points: 3, status: 'In Sprint' }
-];
+// Saved backlog stories belong to the currently selected backend project.
+let currentStoryProjectId = null;
+let backlogStories = [];
+let storiesLoaded = false;
+let storiesLoading = false;
+let storySaving = false;
+let storyLoadVersion = 0;
+// The AI assistant remains a local preview; these are never server fallback data.
+const previewStories = [];
+let nextPreviewStoryId = 1;
 
 function previewMessage(message) {
     document.querySelector('#demo-feedback').textContent = message;
@@ -188,63 +187,205 @@ function makeElement(tag, text, className) {
 
 function renderBacklog() {
     const query = document.querySelector('#backlog-search').value.trim().toLowerCase();
-    const priority = document.querySelector('#backlog-priority').value;
-    const status = document.querySelector('#backlog-status').value;
-    const filtered = previewStories.filter((story) =>
-        `${story.id} ${story.title}`.toLowerCase().includes(query) &&
+    const priority = document.querySelector('#backlog-priority').value.toUpperCase();
+    const status = document.querySelector('#backlog-status').value.toUpperCase();
+    const filtered = backlogStories.filter((story) =>
+        `US-${String(story.id).padStart(3, '0')} ${story.title}`.toLowerCase().includes(query) &&
         (!priority || story.priority === priority) && (!status || story.status === status)
     );
     const rows = document.querySelector('#backlog-rows');
     rows.replaceChildren();
     filtered.forEach((story) => {
         const row = makeElement('tr');
-        [story.id, story.title, story.priority, story.points].forEach((value) => row.append(makeElement('td', value)));
+        const priorityLabel = story.priority ? story.priority[0] + story.priority.slice(1).toLowerCase() : '—';
+        [`US-${String(story.id).padStart(3, '0')}`, story.title, priorityLabel, story.storyPoints ?? '—'].forEach((value) => row.append(makeElement('td', value)));
         const statusCell = makeElement('td');
-        statusCell.append(makeElement('span', story.status, 'status-badge'));
-        row.append(statusCell);
-        const action = makeElement('td');
-        if (story.id === 'US-025') {
-            const link = makeElement('a', 'Review requests', 'table-link');
-            link.href = '#join-requests';
-            action.append(link);
-        }
-        row.append(action);
+        statusCell.append(makeElement('span', story.status === 'BACKLOG' ? 'Backlog' : story.status, 'status-badge'));
+        row.append(statusCell, makeElement('td'));
         rows.append(row);
     });
-    document.querySelector('#backlog-count').textContent = `${filtered.length} demo stories · ${filtered.reduce((sum, story) => sum + story.points, 0)} total points`;
-    document.querySelector('#backlog-empty').hidden = filtered.length !== 0;
+    document.querySelector('#backlog-count').textContent = storiesLoading ? 'Loading stories…' :
+        storiesLoaded ? `${filtered.length} stories · ${filtered.reduce((sum, story) => sum + (story.storyPoints || 0), 0)} total points` : 'Stories not loaded';
+    const empty = document.querySelector('#backlog-empty');
+    empty.hidden = storiesLoading || (storiesLoaded && filtered.length > 0) || (currentStoryProjectId && !storiesLoaded);
+    empty.textContent = !currentStoryProjectId ? 'Select a project using View all projects to load its stories.' :
+        backlogStories.length ? 'No stories match your filters. Try another search or choose All.' : 'No user stories yet. Choose Create User Story to add the first one.';
+    document.querySelector('#create-story').disabled = !currentStoryProjectId || storiesLoading || storySaving;
+    document.querySelector('#reload-stories').disabled = !currentStoryProjectId || storiesLoading || storySaving;
+    rows.setAttribute('aria-busy', String(storiesLoading));
+
+    const drafts = document.querySelector('#ai-draft-list');
+    drafts.replaceChildren();
+    previewStories.forEach((story) => drafts.append(makeElement('li', `${story.id} · ${story.title} · ${story.priority} · ${story.points} points`)));
+    document.querySelector('#ai-draft-previews').hidden = previewStories.length === 0;
 }
+
+async function loadProjectStories() {
+    const version = ++storyLoadVersion;
+    const projectId = currentStoryProjectId;
+    backlogStories = [];
+    storiesLoaded = false;
+    storiesLoading = Boolean(projectId);
+    document.querySelector('#backlog-error').textContent = '';
+    renderBacklog();
+    if (!projectId) return;
+    try {
+        const stories = await userStoryService.list(projectId);
+        if (version !== storyLoadVersion) return;
+        backlogStories = stories;
+        storiesLoaded = true;
+    } catch (error) {
+        if (version !== storyLoadVersion) return;
+        document.querySelector('#backlog-error').textContent = `We couldn't load this project's stories. ${error.message} Choose Reload stories to retry.`;
+    } finally {
+        if (version === storyLoadVersion) {
+            storiesLoading = false;
+            renderBacklog();
+        }
+    }
+}
+window.addEventListener('project-selected', (event) => {
+    currentStoryProjectId = event.detail.projectId;
+    loadProjectStories();
+});
+document.querySelector('#reload-stories').addEventListener('click', loadProjectStories);
+
 ['#backlog-search', '#backlog-priority', '#backlog-status'].forEach((selector) => {
     document.querySelector(selector).addEventListener('input', renderBacklog);
 });
 renderBacklog();
 
 const storyDialog = document.querySelector('#story-dialog');
-document.querySelector('#create-story').addEventListener('click', () => storyDialog.showModal());
-document.querySelector('#cancel-story').addEventListener('click', () => storyDialog.close());
-function addPreviewStory(title, priority, points) {
-    const nextId = Math.max(...previewStories.map((story) => Number(story.id.slice(3)))) + 1;
-    previewStories.unshift({ id: `US-${String(nextId).padStart(3, '0')}`, title, priority, points, status: 'Draft' });
-    document.querySelector('#backlog-search').value = '';
-    document.querySelector('#backlog-priority').value = '';
-    document.querySelector('#backlog-status').value = '';
+const storyForm = document.querySelector('#story-form');
+const storyTitle = document.querySelector('#new-story-title');
+const storyDescription = document.querySelector('#new-story-description');
+const criterionInput = document.querySelector('#new-story-criterion');
+const criterionList = document.querySelector('#manual-story-criteria');
+const criteriaError = document.querySelector('#story-criteria-error');
+let manualCriteria = [];
+
+document.querySelector('#create-story').addEventListener('click', () => {
+    storyDialog.showModal();
+    storyTitle.focus();
+});
+document.querySelector('#cancel-story').addEventListener('click', () => { if (!storySaving) storyDialog.close(); });
+storyDialog.addEventListener('cancel', (event) => { if (storySaving) event.preventDefault(); });
+function addPreviewStory(title, priority, points, description = '', acceptanceCriteria = []) {
+    const id = `AI-DRAFT-${nextPreviewStoryId++}`;
+    previewStories.unshift({ id, title, description, acceptanceCriteria: [...acceptanceCriteria], priority, points, status: 'Draft' });
     renderBacklog();
-    return `US-${String(nextId).padStart(3, '0')}`;
+    return id;
 }
-document.querySelector('#story-form').addEventListener('submit', (event) => {
-    event.preventDefault();
-    const title = document.querySelector('#new-story-title');
-    if (!title.value.trim()) {
-        title.setCustomValidity('Please enter a user story.');
-        title.reportValidity();
+function renderManualCriteria() {
+    criterionList.replaceChildren();
+    manualCriteria.forEach((criterion, index) => {
+        const item = makeElement('li');
+        const remove = makeElement('button', 'Remove', 'request-button');
+        remove.type = 'button';
+        remove.setAttribute('aria-label', `Remove acceptance criterion ${index + 1}`);
+        remove.addEventListener('click', () => {
+            manualCriteria.splice(index, 1);
+            renderManualCriteria();
+            const nextButton = criterionList.querySelectorAll('button')[index] || criterionList.querySelector('button');
+            (nextButton || criterionInput).focus();
+        });
+        item.append(makeElement('span', criterion), remove);
+        criterionList.append(item);
+    });
+    document.querySelector('#story-criteria-count').textContent = `${manualCriteria.length} ${manualCriteria.length === 1 ? 'criterion' : 'criteria'} added`;
+}
+
+function addManualCriterion() {
+    const criterion = criterionInput.value.trim();
+    if (!criterion) {
+        criteriaError.textContent = 'Enter a criterion before choosing Add criterion.';
+        criterionInput.setAttribute('aria-invalid', 'true');
+        criterionInput.focus();
         return;
     }
-    const id = addPreviewStory(title.value.trim(), document.querySelector('#new-story-priority').value, Number(document.querySelector('#new-story-points').value));
-    storyDialog.close();
-    event.target.reset();
-    previewMessage(`${id} was added to the demo backlog. It will reset on refresh.`);
+    manualCriteria.push(criterion);
+    criterionInput.value = '';
+    criteriaError.textContent = '';
+    criterionInput.removeAttribute('aria-invalid');
+    renderManualCriteria();
+    criterionInput.focus();
+}
+document.querySelector('#add-story-criterion').addEventListener('click', addManualCriterion);
+criterionInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        addManualCriterion();
+    }
 });
-document.querySelector('#new-story-title').addEventListener('input', (event) => event.target.setCustomValidity(''));
+
+storyForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (storySaving) return;
+    const title = storyTitle.value.trim();
+    const description = storyDescription.value.trim();
+    const pointsInput = document.querySelector('#new-story-points');
+    const validPoints = pointsInput.checkValidity();
+    document.querySelector('#story-title-error').textContent = title ? '' : 'Please enter a title.';
+    document.querySelector('#story-description-error').textContent = description ? '' : 'Please enter a description.';
+    criteriaError.textContent = manualCriteria.length ? '' : 'Add at least one acceptance criterion using Add criterion.';
+    document.querySelector('#story-points-error').textContent = validPoints ? '' : 'Enter a whole number from 0 to 100, or leave story points empty.';
+    storyTitle.setAttribute('aria-invalid', String(!title));
+    storyDescription.setAttribute('aria-invalid', String(!description));
+    criterionInput.setAttribute('aria-invalid', String(!manualCriteria.length));
+    pointsInput.setAttribute('aria-invalid', String(!validPoints));
+    const saveError = document.querySelector('#story-save-error');
+    saveError.textContent = '';
+    if (!title || !description || !manualCriteria.length || !validPoints) {
+        const invalidInput = !title ? storyTitle : !description ? storyDescription : !manualCriteria.length ? criterionInput : pointsInput;
+        invalidInput.focus();
+        return;
+    }
+
+    if (!currentStoryProjectId) {
+        saveError.textContent = 'Select a project before creating a user story.';
+        return;
+    }
+    const projectId = currentStoryProjectId;
+    storySaving = true;
+    storyForm.setAttribute('aria-busy', 'true');
+    storyForm.querySelectorAll('input, textarea, select, button').forEach((control) => { control.disabled = true; });
+    document.querySelector('#save-story').textContent = 'Saving…';
+    renderBacklog();
+    let saved = false;
+    try {
+        const story = await userStoryService.create(projectId, {
+            title,
+            description,
+            // The UI keeps separate criteria; the API stores them as text.
+            acceptanceCriteria: manualCriteria.join('\n'),
+            priority: document.querySelector('#new-story-priority').value.toUpperCase(),
+            storyPoints: pointsInput.value === '' ? null : Number(pointsInput.value)
+        });
+        if (projectId === currentStoryProjectId) {
+            backlogStories.unshift(story);
+            storiesLoaded = true;
+            document.querySelector('#backlog-search').value = '';
+            document.querySelector('#backlog-priority').value = '';
+            document.querySelector('#backlog-status').value = '';
+        }
+        storyForm.reset();
+        manualCriteria = [];
+        renderManualCriteria();
+        storyForm.querySelectorAll('[aria-invalid]').forEach((input) => input.removeAttribute('aria-invalid'));
+        storyDialog.close();
+        previewMessage(`US-${String(story.id).padStart(3, '0')} was created and saved to the project backlog.`);
+        saved = true;
+    } catch (error) {
+        saveError.textContent = `We couldn't confirm that your story was saved. Your entries are still here. ${error.message}`;
+    } finally {
+        storySaving = false;
+        storyForm.setAttribute('aria-busy', 'false');
+        storyForm.querySelectorAll('input, textarea, select, button').forEach((control) => { control.disabled = false; });
+        document.querySelector('#save-story').textContent = 'Create Story';
+        renderBacklog();
+        if (saved) document.querySelector('#create-story').focus({ preventScroll: true });
+    }
+});
 
 const requirement = document.querySelector('#story-requirement');
 function updateRequirementCount() {

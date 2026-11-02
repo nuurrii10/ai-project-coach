@@ -16,10 +16,11 @@
             </a>
             <div class="project-selector">
                 <label for="current-project">Current project</label>
-                <select id="current-project" name="current-project">
-                    <option value="campus-connect">Campus Connect</option>
+                <select id="current-project" name="current-project" disabled>
+                    <option value="">Loading projects…</option>
                 </select>
-                <p>Demo Project</p>
+                <p id="current-project-description">Projects</p>
+                <a class="project-overview-link" href="#projects">View all projects</a>
             </div>
             <nav aria-label="Main navigation">
                 <ul class="nav-list">
@@ -40,11 +41,13 @@
 
         <div class="main-layout">
             <header class="app-header">
-                <div><h1 id="app-page-title" tabindex="-1">Dashboard</h1><p id="app-page-subtitle">Sprint 4 overview · interactive demo</p></div>
+                <div><h1 id="app-page-title" tabindex="-1">Dashboard</h1><p id="app-page-subtitle">Sprint 4 overview · interactive demo</p><p id="workspace-project-context">Loading project context…</p></div>
                 <div class="header-actions">
+                    <button class="request-button request-button-primary header-action project-create-trigger" data-page="projects" type="button" hidden>Create Project</button>
                     <a id="header-sprint-board" class="request-button" href="#sprint-board">View Sprint Board</a>
+                    <button id="reload-stories" class="request-button header-action" data-page="backlog" type="button" hidden>Reload stories</button>
                     <a class="request-button header-action" data-page="backlog" href="#story-assistant" hidden>Generate with AI</a>
-                    <button class="request-button request-button-primary header-action" data-page="backlog" id="create-story" type="button" hidden>Create User Story</button>
+                    <button class="request-button request-button-primary header-action" data-page="backlog" id="create-story" type="button" disabled hidden>Create User Story</button>
                     <span class="status-badge header-action" data-page="story-assistant" hidden>AI-assisted demo draft</span>
                     <button class="request-button header-action" data-page="sprint-planning" id="end-voting" type="button" hidden>End Voting</button>
                     <button class="request-button request-button-primary header-action" data-page="sprint-planning" id="add-to-sprint" type="button" hidden>Add to Sprint 5</button>
@@ -133,15 +136,45 @@
                     </article>
                 </section>
 
+                <section id="projects" class="page" aria-labelledby="projects-title" hidden>
+                    <div class="page-heading">
+                        <h2 id="projects-title">Project Overview</h2>
+                        <p>Select a project to view its details and continue in the workspace.</p>
+                    </div>
+                    <p class="project-demo-note">Projects and manual stories are stored after a successful save. Dashboard and sprint tools still show sample data.</p>
+                    <p id="project-success" class="request-message" role="status" aria-atomic="true"></p>
+                    <p id="project-error" class="request-message request-message-error" role="alert" aria-atomic="true"></p>
+                    <div class="toolbar">
+                        <p id="project-count" class="project-count" role="status" aria-atomic="true">Loading projects…</p>
+                        <button id="reload-projects" class="request-button" type="button">Reload projects</button>
+                    </div>
+                    <div id="projects-empty" class="panel project-empty" hidden>
+                        <h3>No projects yet</h3>
+                        <p>Create your first project to get started.</p>
+                        <button class="request-button request-button-primary project-create-trigger" type="button">Create Project</button>
+                    </div>
+                    <ul id="project-list" class="project-grid" aria-label="Your projects" aria-busy="true"></ul>
+                    <article id="project-details" class="panel project-details" aria-labelledby="project-details-title" hidden>
+                        <p class="field-help">Selected project</p>
+                        <h3 id="project-details-title" tabindex="-1"></h3>
+                        <p id="project-details-description" class="panel-copy"></p>
+                        <p class="field-help">Continue to the existing demo dashboard, backlog, and sprint tools.</p>
+                        <a class="request-button request-button-primary" href="#dashboard">Open workspace</a>
+                    </article>
+                    <noscript><p>Enable JavaScript to view, select, and create projects.</p></noscript>
+                </section>
+
                 <section id="backlog" class="page" aria-labelledby="backlog-title" hidden>
                     <div class="page-heading"><h2 id="backlog-title">Backlog &amp; User Story Management</h2><p>Create, refine, prioritise, and prepare stories for sprint planning</p></div>
                     <div class="toolbar">
                         <label class="search-field"><span class="sr-only">Search user stories</span><input id="backlog-search" type="search" placeholder="Search user stories…"></label>
                         <label><span class="sr-only">Filter backlog priority</span><select id="backlog-priority"><option value="">Priority: All</option><option>High</option><option>Medium</option><option>Low</option></select></label>
-                        <label><span class="sr-only">Filter backlog status</span><select id="backlog-status"><option value="">Status: All</option><option>Ready</option><option>Draft</option><option>Refine</option><option>In Sprint</option></select></label>
+                        <label><span class="sr-only">Filter backlog status</span><select id="backlog-status"><option value="">Status: All</option><option>Backlog</option><option>Ready</option><option>Draft</option><option>Refine</option><option>In Sprint</option></select></label>
                         <p id="backlog-count" class="toolbar-summary" role="status"></p>
                     </div>
-                    <div class="table-panel"><table><caption class="sr-only">Project backlog with mock user stories</caption><thead><tr><th scope="col">ID</th><th scope="col">User story</th><th scope="col">Priority</th><th scope="col">Points</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="backlog-rows"></tbody></table><p id="backlog-empty" class="empty-notice" hidden>No stories match your filters. Try another search or choose All.</p><p class="table-footer">Mock preview · Decisions and new stories reset on refresh.</p></div>
+                    <p id="backlog-error" class="request-message request-message-error" role="alert" aria-atomic="true"></p>
+                    <div class="table-panel"><table><caption class="sr-only">Stories in the selected project</caption><thead><tr><th scope="col">ID</th><th scope="col">User story</th><th scope="col">Priority</th><th scope="col">Points</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody id="backlog-rows" aria-busy="false"></tbody></table><p id="backlog-empty" class="empty-notice" hidden>No stories match your filters. Try another search or choose All.</p><p class="table-footer">Manual user stories are saved to the selected project.</p></div>
+                    <article id="ai-draft-previews" class="panel spaced-button" hidden><h3>AI draft previews · Not saved</h3><p class="field-help">These local assistant drafts reset on refresh and are separate from the saved project backlog.</p><ul id="ai-draft-list"></ul></article>
                 </section>
 
                 <section id="story-assistant" class="page" data-nav-parent="backlog" aria-labelledby="assistant-title" hidden>
@@ -230,11 +263,66 @@ so that I can participate after the group owner approves me.</textarea></div>
                         </div>
                     </li>
                 </template>
-                <dialog id="story-dialog" aria-labelledby="story-dialog-title"><form id="story-form"><h2 id="story-dialog-title">Create User Story</h2><p class="field-help">A demo story will be added to the backlog until refresh.</p><label class="field-label" for="new-story-title">User story</label><textarea id="new-story-title" rows="4" maxlength="500" required></textarea><div class="form-grid"><div><label class="field-label" for="new-story-priority">Priority</label><select id="new-story-priority"><option>Low</option><option selected>Medium</option><option>High</option></select></div><div><label class="field-label" for="new-story-points">Story points</label><input id="new-story-points" type="number" min="0" max="100" value="3" required></div></div><div class="panel-action action-row"><button id="cancel-story" class="request-button" type="button">Cancel</button><button class="request-button request-button-primary" type="submit">Create Story</button></div></form></dialog>
+                <dialog id="story-dialog" aria-labelledby="story-dialog-title" aria-describedby="story-dialog-help">
+                    <form id="story-form" novalidate>
+                        <h2 id="story-dialog-title">Create User Story</h2>
+                        <p id="story-dialog-help" class="field-help">Create a user story in the selected project. It will be saved when the backend confirms success.</p>
+                        <p id="story-save-error" class="request-message request-message-error" role="alert" aria-atomic="true"></p>
+
+                        <label class="field-label" for="new-story-title">Title (required)</label>
+                        <input id="new-story-title" name="title" type="text" maxlength="120" required aria-describedby="story-title-error">
+                        <p id="story-title-error" class="story-field-error" role="alert"></p>
+
+                        <label class="field-label" for="new-story-description">Description (required)</label>
+                        <textarea id="new-story-description" name="description" rows="3" maxlength="2000" required aria-describedby="story-description-error"></textarea>
+                        <p id="story-description-error" class="story-field-error" role="alert"></p>
+
+                        <label class="field-label" for="new-story-criterion">Acceptance criteria (at least one required)</label>
+                        <p id="story-criteria-help" class="field-help">Enter one criterion at a time, then choose Add criterion or press Enter.</p>
+                        <div class="criterion-entry">
+                            <input id="new-story-criterion" type="text" maxlength="500" aria-describedby="story-criteria-help story-criteria-error">
+                            <button id="add-story-criterion" class="request-button" type="button">Add criterion</button>
+                        </div>
+                        <p id="story-criteria-error" class="story-field-error" role="alert"></p>
+                        <p id="story-criteria-count" class="field-help" role="status" aria-atomic="true">0 criteria added</p>
+                        <ul id="manual-story-criteria" class="manual-story-criteria" aria-label="Added acceptance criteria"></ul>
+
+                        <div class="form-grid">
+                            <div><label class="field-label" for="new-story-priority">Priority (optional)</label><select id="new-story-priority"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+                            <div><label class="field-label" for="new-story-points">Story points (optional)</label><input id="new-story-points" type="number" min="0" max="100" step="1" value="3" aria-describedby="story-points-error"><p id="story-points-error" class="story-field-error" role="alert"></p></div>
+                        </div>
+                        <div class="panel-action action-row">
+                            <button id="cancel-story" class="request-button" type="button">Cancel</button>
+                            <button id="save-story" class="request-button request-button-primary" type="submit">Create Story</button>
+                        </div>
+                    </form>
+                </dialog>
+                <dialog id="project-dialog" aria-labelledby="project-dialog-title" aria-describedby="project-dialog-description">
+                    <form id="project-form" novalidate>
+                        <h2 id="project-dialog-title">Create Project</h2>
+                        <p id="project-dialog-description" class="field-help">Enter a name and an optional description to create a project.</p>
+                        <p id="project-form-error" class="request-message request-message-error" role="alert" aria-atomic="true"></p>
+                        <fieldset id="project-form-fields" class="project-form-fields">
+                            <label class="field-label" for="project-name">Project name (required)</label>
+                            <input id="project-name" name="name" type="text" maxlength="100" required aria-describedby="project-name-help project-name-error" autocomplete="off">
+                            <p id="project-name-help" class="field-help">Use a short, descriptive name, up to 100 characters.</p>
+                            <p id="project-name-error" class="project-field-error" role="alert"></p>
+                            <label class="field-label" for="project-description">Description (optional)</label>
+                            <textarea id="project-description" name="description" rows="4" maxlength="500" aria-describedby="project-description-help"></textarea>
+                            <p id="project-description-help" class="field-help">A brief description, up to 500 characters.</p>
+                            <div class="panel-action action-row">
+                                <button id="cancel-project" class="request-button" type="button">Cancel</button>
+                                <button id="save-project" class="request-button request-button-primary" type="submit">Create Project</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </dialog>
             </main>
             <footer class="app-footer">Clickable prototype · Mock data and simulated AI <span>University project · UI prototype</span></footer>
         </div>
     </div>
+    <script src="js/project-service.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/projects.js"></script>
 </body>
 </html>
