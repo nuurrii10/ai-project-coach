@@ -216,6 +216,52 @@ dialog h2 { margin-top: 0; font-size: 20px; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .form-grid input, .form-grid select { width: 100%; }
 
+/* Manual user story form. */
+#new-story-title { width: 100%; }
+.story-field-error { margin: 6px 0; font-size: 12px; font-weight: 600; }
+.story-field-error:empty { display: none; }
+.criterion-entry { display: flex; flex-wrap: wrap; gap: 8px; }
+.criterion-entry input { flex: 1 1 200px; min-width: 0; }
+.manual-story-criteria { list-style: none; margin: 12px 0; padding: 0; }
+.manual-story-criteria li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.manual-story-criteria span { flex: 1; min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.manual-story-criteria button { flex-shrink: 0; }
+.story-demo-controls { margin-top: 16px; font-size: 12px; }
+.story-demo-controls summary { cursor: pointer; }
+.story-demo-toggle { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; }
+.story-demo-toggle input { margin-top: 2px; accent-color: #333; }
+#story-form [aria-invalid="true"] { border: 2px solid #444; }
+
+/* Project management reuses the workspace panels, buttons, and feedback styles. */
+.project-overview-link { display: inline-block; margin-top: 10px; font-size: 12px; }
+.project-overview-link.is-active { font-weight: 700; }
+.project-demo-note { margin: 0 0 18px; color: var(--muted); font-size: 12px; }
+.project-count { flex: 1; margin: 0; color: var(--muted); font-size: 13px; }
+.project-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; list-style: none; margin: 0; padding: 0; }
+.project-card { display: flex; flex-direction: column; align-items: flex-start; overflow-wrap: anywhere; }
+.project-card.is-selected { padding: 15px; border: 2px solid #555; }
+.project-card h3 { margin: 0; font-size: 16px; line-height: 1.4; }
+.project-card .panel-heading { width: 100%; }
+.project-card .panel-copy { flex: 1; margin: 0 0 20px; white-space: pre-wrap; }
+.project-card .request-button { margin-top: auto; }
+.project-details { margin-top: 20px; overflow-wrap: anywhere; }
+.project-details .panel-copy { white-space: pre-wrap; }
+.project-details .request-button { margin-top: 12px; }
+.project-empty { padding: 36px 20px; margin-bottom: 20px; text-align: center; }
+.project-empty p { color: var(--muted); }
+.project-demo-controls { padding: 16px; margin-top: 24px; border: 1px solid var(--border); border-radius: 3px; background: #f5f5f5; font-size: 12px; }
+.project-demo-controls summary { cursor: pointer; font-weight: 600; }
+.project-demo-controls .toolbar { margin: 14px 0; }
+.project-failure-toggle { display: flex; align-items: flex-start; gap: 8px; }
+.project-failure-toggle input { margin-top: 2px; accent-color: #333; }
+.project-form-fields { min-width: 0; margin: 0; padding: 0; border: 0; }
+.project-form-fields input[type="text"] { width: 100%; }
+.project-field-error { margin: 8px 0; font-size: 12px; font-weight: 600; }
+.project-field-error:empty { display: none; }
+#project-name[aria-invalid="true"] { border: 2px solid #444; }
+#workspace-project-context { margin-top: 4px; overflow-wrap: anywhere; }
+.app-header > div:first-child { min-width: 0; }
+
 @media (max-width: 1250px) {
     .overview-grid { gap: 14px; }
     .overview-card { padding: 16px; }
@@ -269,6 +315,7 @@ dialog h2 { margin-top: 0; font-size: 20px; }
 }
 @media (max-width: 600px) {
     .analysis-grid, .board-grid { grid-template-columns: minmax(0, 1fr); }
+    .project-grid { grid-template-columns: minmax(0, 1fr); }
     .board-column { min-height: 240px; }
     .estimate-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .vote-options { grid-template-columns: repeat(4, minmax(0, 1fr)); }
