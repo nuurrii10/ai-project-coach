@@ -35,6 +35,11 @@ public class UserStory {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
+    // null while the story is only in the backlog
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sprint_id")
+    private Sprint sprint;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -114,6 +119,14 @@ public class UserStory {
 
     public Project getProject() {
         return project;
+    }
+
+    public Sprint getSprint() {
+        return sprint;
+    }
+
+    public void setSprint(Sprint sprint) {
+        this.sprint = sprint;
     }
 
     public LocalDateTime getCreatedAt() {

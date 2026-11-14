@@ -33,7 +33,7 @@ class UserStoryControllerTest {
             "Join a study group", "As a student, I want to join a study group.", null, Priority.MEDIUM, 5);
 
     private final UserStoryResponse joinGroupStory = new UserStoryResponse(
-            10L, 1L, "Join a study group", "As a student, I want to join a study group.", null,
+            10L, 1L, null, "Join a study group", "As a student, I want to join a study group.", null,
             Priority.MEDIUM, 5, "BACKLOG", LocalDateTime.now());
 
     @Test

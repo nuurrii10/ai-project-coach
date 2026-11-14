@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public record UserStoryResponse(
         Long id,
         Long projectId,
+        Long sprintId,
         String title,
         String description,
         String acceptanceCriteria,
@@ -21,6 +22,7 @@ public record UserStoryResponse(
         return new UserStoryResponse(
                 userStory.getId(),
                 userStory.getProject().getId(),
+                userStory.getSprint() == null ? null : userStory.getSprint().getId(),
                 userStory.getTitle(),
                 userStory.getDescription(),
                 userStory.getAcceptanceCriteria(),
