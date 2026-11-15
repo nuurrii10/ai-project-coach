@@ -1,126 +1,221 @@
-
 package at.fhtw.aiprojectcoach.service;
 
+import at.fhtw.aiprojectcoach.dto.CreateSprintRequest;
+import at.fhtw.aiprojectcoach.dto.SprintResponse;
+import at.fhtw.aiprojectcoach.dto.UserStoryResponse;
 import at.fhtw.aiprojectcoach.entity.Project;
 import at.fhtw.aiprojectcoach.entity.Sprint;
 import at.fhtw.aiprojectcoach.entity.UserStory;
+import at.fhtw.aiprojectcoach.exception.ResourceNotFoundException;
 import at.fhtw.aiprojectcoach.repository.ProjectRepository;
 import at.fhtw.aiprojectcoach.repository.SprintRepository;
 import at.fhtw.aiprojectcoach.repository.UserStoryRepository;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class SprintServiceTest {
 
-    private final SprintRepository sprintRepository =
-            Mockito.mock(SprintRepository.class);
+    private final SprintRepository sprintRepository = Mockito.mock(SprintRepository.class);
+    private final ProjectRepository projectRepository = Mockito.mock(ProjectRepository.class);
+    private final UserStoryRepository userStoryRepository = Mockito.mock(UserStoryRepository.class);
+    private final SprintService sprintService =
+            new SprintService(sprintRepository, projectRepository, userStoryRepository);
 
-    private final ProjectRepository projectRepository =
-            Mockito.mock(ProjectRepository.class);
+    private final LocalDate start = LocalDate.of(2026, 11, 16);
+    private final LocalDate end = LocalDate.of(2026, 11, 29);
 
-    private final UserStoryRepository userStoryRepository =
-            Mockito.mock(UserStoryRepository.class);
+    private final Project project = new Project("Campus Connect", null);
+    private final Project otherProject = new Project("Other project", null);
+    private Sprint sprint;
+    private UserStory story;
 
-    private final SprintService sprintService = new SprintService(
-            sprintRepository,
-            projectRepository,
-            userStoryRepository
-    );
-
-    @Test
-    void createSprintSavesSprint() {
-        Project project = new Project("Test Project", null);
-
-        when(projectRepository.findById(1L))
-                .thenReturn(Optional.of(project));
-
-        when(sprintRepository.save(any(Sprint.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-
-        Sprint sprint = sprintService.createSprint(
-                1L,
-                "Sprint 1",
-                LocalDate.of(2026, 12, 1),
-                LocalDate.of(2026, 12, 14)
-        );
-
-        assertEquals("Sprint 1", sprint.getName());
-        assertEquals("PLANNED", sprint.getStatus());
-        assertEquals(project, sprint.getProject());
-
-        verify(sprintRepository).save(any(Sprint.class));
+    @BeforeEach
+    void setUp() {
+        // Entities get their ids from the database; set them by hand for unit tests
+        ReflectionTestUtils.setField(project, "id", 1L);
+        ReflectionTestUtils.setField(otherProject, "id", 2L);
+        sprint = new Sprint("Sprint 1", "MVP", start, end, project);
+        ReflectionTestUtils.setField(sprint, "id", 5L);
+        story = new UserStory("Join a study group", null, null, project);
+        ReflectionTestUtils.setField(story, "id", 10L);
+        when(sprintRepository.save(any(Sprint.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userStoryRepository.save(any(UserStory.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
-    void createSprintRejectsInvalidDates() {
-        assertThrows(ResponseStatusException.class, () ->
-                sprintService.createSprint(
-                        1L,
-                        "Sprint 1",
-                        LocalDate.of(2026, 12, 14),
-                        LocalDate.of(2026, 12, 1)
-                )
-        );
+    void createSprintSavesAllFields() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        verify(sprintRepository, never()).save(any(Sprint.class));
+        SprintResponse response = sprintService.createSprint(1L,
+                new CreateSprintRequest("  Sprint 1 ", "Deliver the MVP", start, end));
+
+        assertEquals("Sprint 1", response.name());
+        assertEquals("Deliver the MVP", response.goal());
+        assertEquals(start, response.startDate());
+        assertEquals(end, response.endDate());
+        assertEquals(1L, response.projectId());
     }
 
     @Test
-    void assignUserStoryToSprint() {
-        Project project = Mockito.mock(Project.class);
-        when(project.getId()).thenReturn(1L);
+    void createSprintAllowsOneDaySprint() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        Sprint sprint = new Sprint(
-                "Sprint 1", null, null, project);
+        SprintResponse response = sprintService.createSprint(1L, new CreateSprintRequest("Hackathon", null, start, start));
 
-        UserStory story = new UserStory(
-                "Login Feature", null, null, project);
-
-        when(sprintRepository.findById(2L))
-                .thenReturn(Optional.of(sprint));
-
-        when(userStoryRepository.findById(1L))
-                .thenReturn(Optional.of(story));
-
-        sprintService.assignUserStory(2L, 1L);
-
-        assertSame(sprint, story.getSprint());
-        verify(userStoryRepository).save(story);
+        assertEquals(start, response.endDate());
     }
 
     @Test
-    void assignUserStoryRejectsDifferentProject() {
-        Project sprintProject = Mockito.mock(Project.class);
-        Project storyProject = Mockito.mock(Project.class);
+    void createSprintRejectsEndDateBeforeStartDate() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
 
-        when(sprintProject.getId()).thenReturn(1L);
-        when(storyProject.getId()).thenReturn(2L);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> sprintService.createSprint(1L, new CreateSprintRequest("Sprint 1", null, end, start)));
 
-        Sprint sprint = new Sprint(
-                "Sprint 1", null, null, sprintProject);
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        verify(sprintRepository, never()).save(any());
+    }
 
-        UserStory story = new UserStory(
-                "Login Feature", null, null, storyProject);
+    @Test
+    void createSprintThrowsWhenProjectMissing() {
+        when(projectRepository.findById(99L)).thenReturn(Optional.empty());
 
-        when(sprintRepository.findById(2L))
-                .thenReturn(Optional.of(sprint));
+        assertThrows(ResourceNotFoundException.class,
+                () -> sprintService.createSprint(99L, new CreateSprintRequest("Sprint 1", null, start, end)));
+    }
 
-        when(userStoryRepository.findById(1L))
-                .thenReturn(Optional.of(story));
+    @Test
+    void getSprintsForProjectReturnsSprintsOfThatProject() {
+        when(projectRepository.existsById(1L)).thenReturn(true);
+        when(sprintRepository.findAllByProject_IdOrderByStartDateAsc(1L)).thenReturn(List.of(
+                sprint, new Sprint("Sprint 2", null, end.plusDays(1), end.plusDays(14), project)));
 
-        assertThrows(ResponseStatusException.class, () ->
-                sprintService.assignUserStory(2L, 1L)
-        );
+        List<SprintResponse> sprints = sprintService.getSprintsForProject(1L);
 
-        verify(userStoryRepository, never()).save(any(UserStory.class));
+        assertEquals(2, sprints.size());
+        assertEquals("Sprint 2", sprints.get(1).name());
+    }
+
+    @Test
+    void getSprintsForProjectThrowsWhenProjectMissing() {
+        when(projectRepository.existsById(99L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class, () -> sprintService.getSprintsForProject(99L));
+    }
+
+    @Test
+    void getSprintByIdThrowsWhenMissing() {
+        when(sprintRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> sprintService.getSprintById(99L));
+    }
+
+    @Test
+    void getUserStoriesForSprintThrowsWhenSprintMissing() {
+        when(sprintRepository.existsById(99L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class, () -> sprintService.getUserStoriesForSprint(99L));
+    }
+
+    @Test
+    void assignUserStorySetsSprint() {
+        when(sprintRepository.findById(5L)).thenReturn(Optional.of(sprint));
+        when(userStoryRepository.findById(10L)).thenReturn(Optional.of(story));
+
+        UserStoryResponse response = sprintService.assignUserStory(5L, 10L);
+
+        assertEquals(5L, response.sprintId());
+        assertEquals(sprint, story.getSprint());
+    }
+
+    @Test
+    void assignUserStoryMovesStoryFromAnotherSprint() {
+        Sprint previous = new Sprint("Sprint 0", null, start.minusDays(14), start.minusDays(1), project);
+        ReflectionTestUtils.setField(previous, "id", 4L);
+        story.setSprint(previous);
+        when(sprintRepository.findById(5L)).thenReturn(Optional.of(sprint));
+        when(userStoryRepository.findById(10L)).thenReturn(Optional.of(story));
+
+        assertEquals(5L, sprintService.assignUserStory(5L, 10L).sprintId());
+    }
+
+    @Test
+    void assignUserStoryRejectsStoryFromOtherProject() {
+        UserStory foreignStory = new UserStory("Foreign", null, null, otherProject);
+        when(sprintRepository.findById(5L)).thenReturn(Optional.of(sprint));
+        when(userStoryRepository.findById(11L)).thenReturn(Optional.of(foreignStory));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> sprintService.assignUserStory(5L, 11L));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertNull(foreignStory.getSprint());
+        verify(userStoryRepository, never()).save(any());
+    }
+
+    @Test
+    void assignUserStoryThrowsWhenSprintMissing() {
+        when(sprintRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> sprintService.assignUserStory(99L, 10L));
+    }
+
+    @Test
+    void assignUserStoryThrowsWhenStoryMissing() {
+        when(sprintRepository.findById(5L)).thenReturn(Optional.of(sprint));
+        when(userStoryRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> sprintService.assignUserStory(5L, 99L));
+    }
+
+    @Test
+    void removeUserStoryClearsSprint() {
+        story.setSprint(sprint);
+        when(sprintRepository.findById(5L)).thenReturn(Optional.of(sprint));
+        when(userStoryRepository.findById(10L)).thenReturn(Optional.of(story));
+
+        UserStoryResponse response = sprintService.removeUserStory(5L, 10L);
+
+        assertNull(response.sprintId());
+        assertNull(story.getSprint());
+    }
+
+    @Test
+    void removeUserStoryRejectsStoryNotInSprint() {
+        when(sprintRepository.findById(5L)).thenReturn(Optional.of(sprint));
+        when(userStoryRepository.findById(10L)).thenReturn(Optional.of(story));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> sprintService.removeUserStory(5L, 10L));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+    }
+
+    @Test
+    void removeUserStoryRejectsStoryInDifferentSprint() {
+        Sprint other = new Sprint("Sprint 2", null, end.plusDays(1), end.plusDays(14), project);
+        ReflectionTestUtils.setField(other, "id", 6L);
+        story.setSprint(other);
+        when(sprintRepository.findById(5L)).thenReturn(Optional.of(sprint));
+        when(userStoryRepository.findById(10L)).thenReturn(Optional.of(story));
+
+        assertThrows(ResponseStatusException.class, () -> sprintService.removeUserStory(5L, 10L));
+        assertEquals(other, story.getSprint());
     }
 }

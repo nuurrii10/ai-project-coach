@@ -1,13 +1,15 @@
-
 package at.fhtw.aiprojectcoach.controller;
 
-import at.fhtw.aiprojectcoach.entity.Sprint;
+import at.fhtw.aiprojectcoach.dto.CreateSprintRequest;
+import at.fhtw.aiprojectcoach.dto.SprintResponse;
+import at.fhtw.aiprojectcoach.dto.UserStoryResponse;
 import at.fhtw.aiprojectcoach.service.SprintService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -19,52 +21,54 @@ public class SprintController {
         this.sprintService = sprintService;
     }
 
-    // Create a sprint for a project
+    // Create a sprint
     @PostMapping("/projects/{projectId}/sprints")
     @ResponseStatus(HttpStatus.CREATED)
     public SprintResponse createSprint(
             @PathVariable Long projectId,
-            @RequestBody CreateSprintRequest request) {
+            @Valid @RequestBody CreateSprintRequest request) {
 
-        Sprint sprint = sprintService.createSprint(
-                projectId,
-                request.name(),
-                request.startDate(),
-                request.endDate()
-        );
+        return sprintService.createSprint(projectId, request);
+    }
 
-        return new SprintResponse(
-                sprint.getId(),
-                sprint.getName(),
-                sprint.getStartDate(),
-                sprint.getEndDate(),
-                sprint.getStatus(),
-                projectId
-        );
+    // Get all sprints of a project
+    @GetMapping("/projects/{projectId}/sprints")
+    public List<SprintResponse> getSprintsForProject(
+            @PathVariable Long projectId) {
+
+        return sprintService.getSprintsForProject(projectId);
+    }
+
+    // Get a sprint by ID
+    @GetMapping("/sprints/{id}")
+    public SprintResponse getSprintById(@PathVariable Long id) {
+
+        return sprintService.getSprintById(id);
+    }
+
+    // Get all user stories assigned to a sprint
+    @GetMapping("/sprints/{sprintId}/user-stories")
+    public List<UserStoryResponse> getUserStoriesForSprint(
+            @PathVariable Long sprintId) {
+
+        return sprintService.getUserStoriesForSprint(sprintId);
     }
 
     // Assign a user story to a sprint
     @PutMapping("/sprints/{sprintId}/user-stories/{userStoryId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void assignUserStory(
+    public UserStoryResponse assignUserStory(
             @PathVariable Long sprintId,
             @PathVariable Long userStoryId) {
 
-        sprintService.assignUserStory(sprintId, userStoryId);
+        return sprintService.assignUserStory(sprintId, userStoryId);
     }
 
-    public record CreateSprintRequest(
-            String name,
-            LocalDate startDate,
-            LocalDate endDate
-    ) {}
+    // Remove a user story from a sprint
+    @DeleteMapping("/sprints/{sprintId}/user-stories/{userStoryId}")
+    public UserStoryResponse removeUserStory(
+            @PathVariable Long sprintId,
+            @PathVariable Long userStoryId) {
 
-    public record SprintResponse(
-            Long id,
-            String name,
-            LocalDate startDate,
-            LocalDate endDate,
-            String status,
-            Long projectId
-    ) {}
+        return sprintService.removeUserStory(sprintId, userStoryId);
+    }
 }

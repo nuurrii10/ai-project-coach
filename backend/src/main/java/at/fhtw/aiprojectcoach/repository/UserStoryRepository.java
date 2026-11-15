@@ -10,4 +10,6 @@ public interface UserStoryRepository
         extends JpaRepository<UserStory, Long> {
 
     List<UserStory> findAllByProject_IdOrderByCreatedAtDesc(Long projectId);
+
+    List<UserStory> findAllBySprint_IdOrderByCreatedAtDesc(Long sprintId);
 }
