@@ -8,6 +8,10 @@ import java.time.LocalDateTime;
 @Table(name = "user_stories")
 public class UserStory {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sprint_id")
+    private Sprint sprint;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -119,4 +123,14 @@ public class UserStory {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+
+public Sprint getSprint() {
+    return sprint;
+}
+
+public void setSprint(Sprint sprint) {
+    this.sprint = sprint;
+}
+
 }

@@ -55,4 +55,23 @@ public class UserStoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("User story with id " + id + " not found"));
         return UserStoryResponse.from(userStory);
     }
+
+public UserStoryResponse updateStoryPoints(Long id, Integer storyPoints) {
+
+    UserStory userStory = userStoryRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                    "User story with id " + id + " not found"));
+
+    if (storyPoints == null || storyPoints < 0) {
+        throw new IllegalArgumentException(
+                "Story points must be zero or greater");
+    }
+
+    userStory.setStoryPoints(storyPoints);
+
+    UserStory savedUserStory = userStoryRepository.save(userStory);
+
+    return UserStoryResponse.from(savedUserStory);
+}
+
 }

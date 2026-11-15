@@ -6,6 +6,8 @@ import at.fhtw.aiprojectcoach.service.UserStoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -38,4 +40,19 @@ public class UserStoryController {
     public UserStoryResponse getUserStoryById(@PathVariable Long id) {
         return userStoryService.getUserStoryById(id);
     }
+
+    // PATCH /api/user-stories/{id}/story-points
+    @PatchMapping("/user-stories/{id}/story-points")
+    public UserStoryResponse updateStoryPoints(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateStoryPointsRequest request) {
+
+        return userStoryService.updateStoryPoints(
+                id, request.storyPoints());
+    }
+
+    public record UpdateStoryPointsRequest(
+            @NotNull @Min(0) Integer storyPoints
+    ) {}
+
 }

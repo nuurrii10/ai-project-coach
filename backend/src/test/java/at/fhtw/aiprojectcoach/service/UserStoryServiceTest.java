@@ -81,4 +81,31 @@ class UserStoryServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> userStoryService.getUserStoryById(99L));
     }
+
+    @Test
+void updateStoryPointsSuccessfully() {
+
+    Project project = new Project("Test Project", null);
+
+    UserStory userStory = new UserStory(
+            "Login Feature",
+            "Implement user login",
+            "User can log in",
+            project
+    );
+
+    userStory.setStoryPoints(5);
+
+    when(userStoryRepository.findById(1L))
+            .thenReturn(Optional.of(userStory));
+
+    when(userStoryRepository.save(any(UserStory.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+    UserStoryResponse response =
+            userStoryService.updateStoryPoints(1L, 8);
+
+    assertEquals(8, response.storyPoints());
+    assertEquals(8, userStory.getStoryPoints());
+}
 }
