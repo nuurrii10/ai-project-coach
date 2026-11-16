@@ -9,7 +9,7 @@ const source = readFileSync(join(__dirname, '../js/project-service.js'), 'utf8')
 function services(fetch) {
     const context = vm.createContext({ fetch, console: { error() {} } });
     vm.runInContext(source, context);
-    return vm.runInContext('({ projectService, userStoryService })', context);
+    return vm.runInContext('({ projectService, userStoryService, sprintService })', context);
 }
 function response(data, status = 200) {
     return { ok: status >= 200 && status < 300, status, json: async () => data };
@@ -92,4 +92,56 @@ test('network/CORS failures reject clearly, and retry calls the server again', a
 test('invalid JSON is reported as an unexpected server response', async () => {
     const api = services(async () => ({ ok: true, json: async () => { throw new SyntaxError('Invalid JSON'); } }));
     await assert.rejects(api.projectService.list(), /unexpected response/);
+});
+
+test('loads project sprints, sprint details, and saved sprint assignments', async () => {
+    const urls = [];
+    const api = services(async (url) => {
+        urls.push(url);
+        return response([]);
+    });
+    await api.sprintService.list(7);
+    await api.sprintService.getById(42);
+    await api.sprintService.stories(42);
+    assert.deepEqual(urls, [
+        'http://localhost:8080/api/projects/7/sprints',
+        'http://localhost:8080/api/sprints/42',
+        'http://localhost:8080/api/sprints/42/user-stories'
+    ]);
+});
+
+test('creates a sprint with a goal and YYYY-MM-DD dates as JSON', async () => {
+    const sprint = { name: 'Sprint 3', goal: 'Complete sprint planning', startDate: '2026-11-16', endDate: '2026-11-22' };
+    const api = services(async (url, options) => {
+        assert.equal(url, 'http://localhost:8080/api/projects/7/sprints');
+        assert.equal(options.method, 'POST');
+        assert.equal(options.headers['Content-Type'], 'application/json');
+        assert.deepEqual(JSON.parse(options.body), sprint);
+        return response({ ...sprint, id: 42, projectId: 7 }, 201);
+    });
+    assert.equal((await api.sprintService.create(7, sprint)).goal, sprint.goal);
+});
+
+test('assigns and removes stories using real IDs and PUT/DELETE without a request body', async () => {
+    const methods = [];
+    const api = services(async (url, options) => {
+        assert.equal(url, 'http://localhost:8080/api/sprints/42/user-stories/19');
+        assert.equal(options.body, undefined);
+        methods.push(options.method);
+        return response({ id: 19, projectId: 7, sprintId: options.method === 'PUT' ? 42 : null });
+    });
+    assert.equal((await api.sprintService.assign(42, 19)).sprintId, 42);
+    assert.equal((await api.sprintService.remove(42, 19)).sprintId, null);
+    assert.deepEqual(methods, ['PUT', 'DELETE']);
+});
+
+test('sprint operations reject HTTP and network errors without a mock fallback', async () => {
+    const unavailable = services(async () => { throw new TypeError('Failed to fetch'); });
+    await assert.rejects(unavailable.sprintService.list(7), /Cannot reach.*CORS/);
+    for (const status of [400, 404, 409, 500]) {
+        const api = services(async () => response(null, status));
+        await assert.rejects(api.sprintService.create(7, {}), new RegExp(`HTTP ${status}`));
+        await assert.rejects(api.sprintService.assign(42, 19), new RegExp(`HTTP ${status}`));
+        await assert.rejects(api.sprintService.remove(42, 19), new RegExp(`HTTP ${status}`));
+    }
 });

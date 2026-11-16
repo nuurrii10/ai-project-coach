@@ -45,3 +45,28 @@ const userStoryService = {
         });
     }
 };
+
+const sprintService = {
+    list(projectId) {
+        return requestBackend(`/api/projects/${encodeURIComponent(projectId)}/sprints`);
+    },
+    getById(id) {
+        return requestBackend(`/api/sprints/${encodeURIComponent(id)}`);
+    },
+    create(projectId, sprint) {
+        return requestBackend(`/api/projects/${encodeURIComponent(projectId)}/sprints`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(sprint)
+        });
+    },
+    stories(sprintId) {
+        return requestBackend(`/api/sprints/${encodeURIComponent(sprintId)}/user-stories`);
+    },
+    assign(sprintId, storyId) {
+        return requestBackend(`/api/sprints/${encodeURIComponent(sprintId)}/user-stories/${encodeURIComponent(storyId)}`, { method: 'PUT' });
+    },
+    remove(sprintId, storyId) {
+        return requestBackend(`/api/sprints/${encodeURIComponent(sprintId)}/user-stories/${encodeURIComponent(storyId)}`, { method: 'DELETE' });
+    }
+};

@@ -200,7 +200,56 @@ so that I can participate after the group owner approves me.</textarea></div>
                 </section>
 
                 <section id="sprint-planning" class="page" aria-labelledby="planning-title" hidden>
-                    <div class="page-heading"><h2 id="planning-title">Sprint Planning &amp; Planning Poker</h2><p>Backlog refinement &amp; estimation session · 6 demo participants</p></div>
+                    <div class="page-heading"><h2 id="planning-title">Sprint Planning &amp; Planning Poker</h2><p>Plan sprints for the selected project · Planning Poker demo below</p></div>
+                    <div id="sprint-management" class="stack" aria-busy="false">
+                        <p id="sprint-success" class="request-message" role="status" aria-atomic="true"></p>
+                        <p id="sprint-error" class="request-message request-message-error" role="alert" aria-atomic="true" tabindex="-1"></p>
+                        <div class="sprint-management-grid">
+                            <article class="panel" aria-labelledby="create-sprint-title">
+                                <h3 id="create-sprint-title">Create sprint</h3>
+                                <p class="field-help">Saved to the selected project after the backend confirms success.</p>
+                                <form id="sprint-form" novalidate>
+                                    <label class="field-label" for="sprint-name">Sprint name (required)</label>
+                                    <input id="sprint-name" name="name" type="text" maxlength="100" required aria-describedby="sprint-name-error" disabled>
+                                    <p id="sprint-name-error" class="story-field-error" role="alert"></p>
+                                    <div class="form-grid">
+                                        <div><label class="field-label" for="sprint-start">Start date (required)</label><input id="sprint-start" name="startDate" type="date" required aria-describedby="sprint-start-error" disabled><p id="sprint-start-error" class="story-field-error" role="alert"></p></div>
+                                        <div><label class="field-label" for="sprint-end">End date (required)</label><input id="sprint-end" name="endDate" type="date" required aria-describedby="sprint-end-error" disabled><p id="sprint-end-error" class="story-field-error" role="alert"></p></div>
+                                    </div>
+                                    <label class="field-label" for="sprint-goal">Sprint goal (optional)</label>
+                                    <textarea id="sprint-goal" name="goal" rows="3" disabled></textarea>
+                                    <div class="panel-action"><button id="create-sprint" class="request-button request-button-primary" type="submit" disabled>Create sprint</button></div>
+                                </form>
+                            </article>
+                            <article class="panel" aria-labelledby="project-sprints-title">
+                                <h3 id="project-sprints-title">Project sprints</h3>
+                                <p id="sprint-load-status" class="field-help" role="status" aria-atomic="true">Select a project to plan its sprints.</p>
+                                <div class="toolbar">
+                                    <label for="planning-sprint">Selected sprint</label>
+                                    <select id="planning-sprint" disabled><option value="">Select a sprint</option></select>
+                                    <button id="reload-sprints" class="request-button" type="button" disabled>Reload planning</button>
+                                </div>
+                                <p id="sprints-empty" class="empty-notice" hidden>No sprints yet. Use Create sprint to add the first one.</p>
+                                <div id="planning-sprint-details" hidden>
+                                    <h4 id="planning-sprint-name" tabindex="-1"></h4>
+                                    <p id="planning-sprint-dates" class="panel-copy"></p>
+                                    <h4>Sprint goal</h4>
+                                    <p id="planning-sprint-goal" class="sprint-goal"></p>
+                                    <p class="field-help">Goals are set when creating a sprint. Editing an existing goal is not supported yet.</p>
+                                </div>
+                            </article>
+                        </div>
+                        <article class="panel" aria-labelledby="sprint-stories-title">
+                            <h3 id="sprint-stories-title">Assign project stories</h3>
+                            <p class="field-help">Choose a sprint above. Stories assigned to another sprint must be removed there first.</p>
+                            <p id="sprint-story-summary" role="status" aria-atomic="true">Select a project and sprint to view its stories.</p>
+                            <div class="table-panel">
+                                <table><caption class="sr-only">Stories belonging to the selected project and their sprint assignments</caption><thead><tr><th scope="col">ID</th><th scope="col">User story</th><th scope="col">Assignment</th><th scope="col">Action</th></tr></thead><tbody id="sprint-story-rows"></tbody></table>
+                            </div>
+                            <p id="sprint-stories-empty" class="empty-notice" hidden>No stories in this project. <a href="#backlog">Create a user story in Backlog</a>, then reload planning.</p>
+                        </article>
+                    </div>
+                    <div class="poker-demo-heading"><h3>Planning Poker · Existing demo</h3><p class="field-help">The sample story, estimates, and header voting actions below remain a separate demo. Use Assign and Remove above to save real sprint assignments.</p></div>
                     <article class="panel selected-story"><h3>Selected user story</h3><div class="selected-story-grid"><div><p><strong>US-026</strong> <span class="status-badge">Medium</span> <span class="status-badge">Study Groups</span></p><h4>Request access to a public study group</h4><p>As a university student, I want to request access to a public study group, so that I can participate after the group owner approves me.</p></div><div><h4>Acceptance criteria (4)</h4><ul class="criteria-list compact"><li>Join request is sent to the group owner</li><li>Student sees a Pending status</li><li>Duplicate requests are prevented</li><li>Private posts stay hidden until approval</li></ul></div></div></article>
                     <div class="planning-grid">
                         <article class="panel"><h3>Team estimates</h3><p id="voting-description" class="panel-subtitle">Votes are revealed. Discuss the difference before agreeing a final estimate.</p><div id="team-estimates" class="estimate-grid"></div>
@@ -323,6 +372,7 @@ so that I can participate after the group owner approves me.</textarea></div>
     </div>
     <script src="js/project-service.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/sprint-planning.js"></script>
     <script src="js/projects.js"></script>
 </body>
 </html>
