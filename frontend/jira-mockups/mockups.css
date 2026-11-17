@@ -1,0 +1,232 @@
+:root {
+  color-scheme: light;
+  --ink: #292a2e;
+  --muted: #696c75;
+  --line: #dedfe2;
+  --soft: #f5f5f6;
+  --blue: #2874e8;
+  --purple: #b94fe9;
+  --green: #579c20;
+  --orange: #e87500;
+}
+
+* { box-sizing: border-box; }
+
+html, body { min-height: 100%; margin: 0; }
+
+body {
+  background: #e9e9eb;
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a { color: inherit; }
+button { font: inherit; }
+
+.jira-window {
+  position: relative;
+  width: min(100%, 900px);
+  min-height: 100vh;
+  margin: 0 auto;
+  overflow: hidden;
+  border-inline: 1px solid #d5d6d9;
+  background: #fff;
+}
+
+.jira-header {
+  height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 42px;
+  border-bottom: 1px solid var(--line);
+}
+
+.jira-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 30px;
+  letter-spacing: -1.3px;
+}
+
+.jira-logo {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #1768db;
+}
+
+.jira-logo span {
+  width: 21px;
+  height: 21px;
+  background: #fff;
+  clip-path: polygon(0 0, 60% 0, 60% 42%, 100% 42%, 100% 100%, 48% 100%, 48% 66%, 0 66%);
+}
+
+.window-actions { display: flex; align-items: center; gap: 28px; }
+.window-expand { width: 27px; height: 25px; border: 3px solid #5b5d62; border-radius: 3px; position: relative; }
+.window-expand::after { content: ""; position: absolute; right: 2px; top: 2px; width: 9px; height: 13px; background: #5b5d62; }
+.window-close { position: relative; width: 24px; height: 24px; }
+.window-close::before, .window-close::after { content: ""; position: absolute; left: 10px; top: 0; width: 3px; height: 25px; background: #5b5d62; }
+.window-close::before { transform: rotate(45deg); }
+.window-close::after { transform: rotate(-45deg); }
+
+.issue-content { padding: 30px 44px 120px; }
+.breadcrumbs { display: flex; align-items: center; gap: 16px; min-height: 42px; margin-bottom: 12px; color: #555860; font-size: 23px; white-space: nowrap; }
+.breadcrumb-divider { margin-inline: 2px; color: #34363a; font-size: 28px; }
+.type-icon { flex: 0 0 auto; display: inline-grid; place-items: center; }
+.type-icon.epic { color: var(--purple); font-size: 30px; font-weight: 700; }
+.type-icon.bookmark { width: 19px; height: 25px; margin-left: 2px; border: 3px solid var(--green); border-radius: 3px 3px 1px 1px; position: relative; }
+.type-icon.bookmark::after { content: ""; position: absolute; left: 3px; bottom: -1px; width: 7px; height: 7px; background: #fff; border-left: 2px solid var(--green); border-top: 2px solid var(--green); transform: rotate(45deg) translate(2px, 2px); }
+.add-symbol { color: #52555c; font-size: 30px; line-height: 1; }
+.checkbox-icon { width: 25px; height: 25px; margin-left: 3px; border: 3px solid #4b8ff5; border-radius: 4px; color: #4b8ff5; font-size: 19px; font-weight: 700; line-height: 1; }
+
+.issue-title { margin: 14px 0 22px; max-width: 760px; font-size: 38px; line-height: 1.12; letter-spacing: -1.2px; font-weight: 700; }
+.title-highlight { padding: 3px 14px 7px; margin-left: -14px; border-radius: 11px; background: #f0f1f2; }
+
+.editor-tools { display: flex; gap: 14px; margin: 0 0 35px; }
+.editor-tools button { width: 58px; height: 58px; border: 1px solid #d6d7da; border-radius: 12px; background: #fff; color: #53565d; font-size: 34px; line-height: 1; }
+.editor-tools button .code-icon { font-size: 25px; font-weight: 700; letter-spacing: -2px; }
+
+.status-toolbar { min-height: 100px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 22px; margin-bottom: 58px; border-radius: 15px; background: #f6f6f7; }
+.status-button { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 0 18px; border: 1px solid #9398a1; border-radius: 12px; background: #e9eaec; color: #33353a; font-size: 26px; white-space: nowrap; }
+.status-spinner { width: 28px; height: 28px; flex: 0 0 auto; border: 3px dashed #7a7e87; border-radius: 50%; }
+.chevron { width: 12px; height: 12px; margin-left: 2px; border-right: 2px solid #41434a; border-bottom: 2px solid #41434a; transform: translateY(-3px) rotate(45deg); }
+.issue-actions { display: flex; align-items: center; gap: 38px; color: #555860; }
+.watchers { display: inline-flex; align-items: center; gap: 10px; font-size: 26px; color: #36383d; }
+.eye-icon { width: 25px; height: 17px; border: 3px solid #60636a; border-radius: 75% 20%; transform: rotate(45deg); position: relative; }
+.eye-icon::after { content: ""; position: absolute; width: 7px; height: 7px; left: 6px; top: 2px; border: 2px solid #60636a; border-radius: 50%; }
+.more-icon { font-size: 23px; letter-spacing: 3px; white-space: nowrap; }
+
+.description-placeholder { margin: 0 0 66px; color: #737680; font-size: 26px; }
+.description-section { margin: -4px 0 56px; }
+.description-section h2, .details-section h2 { margin: 0 0 18px; font-size: 26px; line-height: 1.25; font-weight: 600; letter-spacing: -.4px; }
+.description-section p { margin: 0; max-width: 700px; font-size: 26px; line-height: 1.65; letter-spacing: -.4px; }
+.details-section { margin-top: 0; }
+.details-section h2 { margin-bottom: 26px; }
+.detail { min-height: 112px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 8px; }
+.detail-label { color: #747782; font-size: 22px; line-height: 1.25; }
+.assignee { display: flex; align-items: center; gap: 14px; font-size: 27px; }
+.avatar { width: 42px; height: 42px; display: inline-grid; place-items: center; border-radius: 50%; background: #1c3157; color: #fff; font-size: 17px; font-weight: 700; }
+.parent-link { display: inline-flex; align-items: center; gap: 8px; padding: 3px 7px; border: 1px solid #c986ff; border-radius: 7px; font-size: 23px; }
+.parent-type { width: 20px; height: 20px; display: inline-grid; place-items: center; border-radius: 5px; background: #c87af4; color: #fff; font-size: 13px; }
+.parent-lightning { margin-right: 12px; color: var(--purple); font-size: 30px; }
+.sprint-link { color: var(--blue); font-size: 26px; text-decoration: none; }
+.priority { display: flex; align-items: center; gap: 18px; font-size: 26px; }
+.priority-mark { color: var(--orange); font-size: 28px; font-weight: 700; }
+.keyword-detail { min-height: 90px; }
+.keyword-detail .detail-label { display: flex; align-items: center; gap: 14px; }
+.tag-icon { width: 22px; height: 22px; display: inline-block; border: 3px solid #60636a; border-radius: 5px 5px 5px 0; transform: rotate(-45deg) scale(.8); position: relative; }
+.tag-icon::after { content: ""; position: absolute; right: 2px; top: 2px; width: 3px; height: 3px; border-radius: 50%; background: #60636a; }
+
+.mockup-footer { display: flex; justify-content: space-between; gap: 14px; padding: 16px 44px 100px; color: #555860; font-size: 14px; }
+.mockup-footer a { text-decoration: none; }
+.mockup-footer a:hover { text-decoration: underline; }
+.system-dock { position: fixed; z-index: 2; bottom: 8px; left: 50%; display: flex; align-items: center; gap: 13px; padding: 10px 14px; border: 1px solid rgba(255,255,255,.25); border-radius: 20px; background: rgba(57,57,59,.82); box-shadow: 0 3px 14px #0004; transform: translateX(-50%); }
+.dock-app { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 12px; color: #fff; font-size: 20px; font-weight: 700; }
+.dock-app.discord { background: #6264e8; }
+.dock-app.terminal { border: 2px solid #b9b9b9; background: #101113; font-family: monospace; }
+.dock-app.pdf { background: #d71920; font-family: Georgia, serif; font-size: 28px; }
+.dock-app.blue { background: #f9fbff; color: #3159e8; }
+.dock-app.word { background: #eaf3ff; color: #1765b2; }
+.dock-app.trash { background: #aab4ba; color: #59636b; }
+.dock-separator { height: 40px; margin-inline: 4px; border-left: 1px solid #aaa; }
+
+.gallery-page { min-height: 100vh; padding: 48px 20px; background: #f4f5f7; }
+.gallery { width: min(760px, 100%); margin: 0 auto; }
+.gallery-header { margin-bottom: 28px; }
+.gallery-brand { color: #1768db; font-size: 14px; font-weight: 700; text-decoration: none; }
+.gallery-header h1 { margin: 24px 0 8px; font-size: 32px; }
+.gallery-header p { color: #656a73; }
+.gallery-section { margin-top: 32px; }
+.gallery-section h2 { margin: 0 0 14px; font-size: 20px; }
+.mockup-list { display: grid; gap: 14px; }
+.mockup-link { display: grid; gap: 8px; padding: 20px; border: 1px solid #d9dce1; border-radius: 10px; background: #fff; text-decoration: none; }
+.mockup-link:hover { border-color: #2874e8; box-shadow: 0 4px 14px #172b4d18; }
+.mockup-key { color: #646a75; font-size: 13px; font-weight: 700; }
+.mockup-title { font-size: 18px; font-weight: 600; }
+.mockup-open { color: #1768db; font-size: 14px; }
+
+.email-page { min-height: 100vh; padding: 28px 16px; background: #f7f7f7; color: #33363b; font-family: Arial, Helvetica, sans-serif; }
+.email-message { width: min(100%, 800px); margin: 0 auto; padding: 8px 28px 28px; background: #fff; }
+.email-logo { height: 24px; margin: 0 0 26px; color: #1768db; font-size: 15px; font-weight: 700; }
+.notification-heading { margin: 0 0 22px; font-size: 17px; font-weight: 400; }
+.notification-card { padding: 14px 18px 22px; border: 1px solid #dedfe2; border-radius: 12px; background: #fff; }
+.notification-project { margin: 0 0 8px; color: #5e626a; font-size: 15px; }
+.notification-title { display: inline-block; margin: 0 0 28px; color: #1768db; font-size: 21px; line-height: 1.35; text-decoration: none; }
+.notification-author { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; font-size: 15px; }
+.email-avatar { width: 36px; height: 36px; display: inline-grid; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #e6ecf5; color: #294b79; font-size: 12px; font-weight: 700; }
+.notification-author strong { font-size: 15px; }
+.notification-time { color: #5d6e8d; font-size: 12px; }
+.email-fields { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 13px 10px; margin: 0 0 24px 20px; font-size: 15px; }
+.email-fields dt { margin: 0; }
+.email-fields dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.email-status { display: inline-block; padding: 3px 7px; border-radius: 3px; background: #e2e5e9; color: #46556c; font-size: 12px; font-weight: 700; }
+.email-button { display: inline-block; padding: 12px 18px; border-radius: 3px; background: #0756c9; color: #fff; font-size: 15px; text-decoration: none; }
+.email-button:hover { background: #0648a8; }
+.sprint-change { display: inline-block; padding: 3px 7px; background: #e1f7e9; }
+.email-tip { display: flex; gap: 12px; align-items: flex-start; margin: 36px 0 22px; color: #24354e; font-size: 15px; line-height: 1.55; text-align: center; }
+.email-tip::before { content: ""; width: 15px; height: 18px; flex: 0 0 auto; border: 1px solid #b9bdc3; }
+.email-tip strong { color: #9148bd; }
+.email-downloads { display: flex; justify-content: center; gap: 26px; margin: 0 0 22px; color: #0756c9; }
+.email-footer { color: #858991; font-size: 13px; text-align: center; }
+.email-footer a { color: #1768db; text-decoration: none; }
+.email-back { display: inline-block; margin: 18px 0 0; color: #1768db; font-size: 13px; text-decoration: none; }
+
+.issue-77 .jira-header { display: none; }
+.issue-77 .issue-content { padding-top: 20px; }
+.issue-77 .status-toolbar { margin-bottom: 52px; }
+.issue-77 .description-section { margin-bottom: 42px; }
+.issue-77 .detail { min-height: 100px; }
+.issue-77 .parent-empty { min-height: 78px; }
+.issue-80 .issue-title { max-width: 720px; }
+.issue-80 .description-section { margin-bottom: 40px; }
+.issue-80 .detail { min-height: 100px; }
+.issue-80 .parent-empty { min-height: 78px; }
+
+@media (max-width: 700px) {
+  .email-page { padding: 12px 8px; }
+  .email-message { padding: 8px 12px 20px; }
+  .notification-card { padding-inline: 12px; }
+  .email-fields { grid-template-columns: 112px minmax(0, 1fr); margin-left: 0; }
+  .notification-title { font-size: 19px; }
+  .email-tip { text-align: left; }
+  .jira-header { height: 68px; padding-inline: 20px; }
+  .jira-brand { font-size: 25px; }
+  .issue-content { padding: 22px 24px 100px; }
+  .breadcrumbs { gap: 10px; font-size: 17px; }
+  .issue-title { font-size: clamp(30px, 8vw, 40px); }
+  .title-highlight { margin-left: -8px; padding-inline: 8px; }
+  .editor-tools { margin-bottom: 24px; }
+  .editor-tools button { width: 54px; height: 54px; }
+  .status-toolbar { min-height: 84px; padding: 12px; margin-bottom: 40px; }
+  .status-button { min-height: 50px; padding-inline: 12px; font-size: 19px; }
+  .status-spinner { width: 22px; height: 22px; }
+  .issue-actions { gap: 18px; }
+  .watchers { font-size: 20px; }
+  .description-placeholder { margin-bottom: 48px; font-size: 21px; }
+  .description-section h2, .details-section h2 { font-size: 22px; }
+  .description-section p { font-size: 21px; line-height: 1.5; }
+  .detail { min-height: 90px; }
+  .detail-label { font-size: 18px; }
+  .assignee, .sprint-link, .priority { font-size: 21px; }
+  .parent-link { font-size: 17px; }
+  .mockup-footer { padding-inline: 24px; }
+}
+
+@media (max-width: 420px) {
+  .issue-content { padding-inline: 18px; }
+  .breadcrumbs { gap: 7px; font-size: 15px; }
+  .issue-actions { gap: 12px; }
+  .more-icon { font-size: 18px; }
+  .status-toolbar { gap: 8px; }
+  .status-button { gap: 7px; font-size: 16px; }
+  .system-dock { gap: 7px; padding: 8px; }
+  .dock-app { width: 40px; height: 40px; }
+  .mockup-footer { flex-direction: column; padding-inline: 18px; }
+}

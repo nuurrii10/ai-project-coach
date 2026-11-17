@@ -33,6 +33,8 @@ cd frontend && python -m http.server 8765
 
 Backend runs on `localhost:8080`, frontend on `localhost:8765`.
 
+Open `http://localhost:8765/jira-mockups/` to view the separate Jira ticket and email mockups.
+
 ## Tests
 
 ```bash
